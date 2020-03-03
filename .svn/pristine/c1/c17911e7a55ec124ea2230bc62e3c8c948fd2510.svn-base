@@ -1,0 +1,54 @@
+.toolbar {
+    height: 60px;
+    line-height: 60px;
+    background-color: #002640;
+    color: white;
+}
+.title{
+    padding-left: 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
+.message{
+    // .date{
+    //     font-size: 16px;
+    //     padding-right: 15px;
+    // }
+    // .time{
+    //     font-size: 16px;
+    //     padding-right: 25px;
+    // }
+    // .place{
+    //     font-size: 16px;
+    //     padding-right: 15px;
+    // }
+    // .temp{
+    //     font-size: 16px;
+    //     padding-right: 15px;
+    // }
+    // .weather{
+    //     font-size: 16px;
+    //     padding-right: 25px;
+    // }
+    // .weatherIcon{
+    //     font-size: 16px;
+    //     padding-right: 35px;
+    // }
+    .headPortrait{
+        font-size: 16px;
+        padding-right: 15px;
+    }
+    .username{
+        font-size: 16px;
+        padding-right: 25px;
+        float: right;
+        color: #fff;
+        cursor: pointer;
+        margin-right: 20px;
+    }
+    nz-avatar {
+        margin-right: 16px;
+        float: right;
+        margin-top: 12px;
+    }
+}

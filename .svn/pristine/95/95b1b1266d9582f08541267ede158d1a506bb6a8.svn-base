@@ -1,0 +1,29 @@
+  .login-form {
+    max-width: 300px;
+  }
+
+  .login-form-forgot {
+    float: right;
+  }
+
+  .login-form-button {
+    width: 100%;
+  }
+
+  :host ::ng-deep .ant-tabs-bar{
+      border-bottom: 0;
+      border-left: 0 !important; 
+  }
+
+  .codestyle {
+    background-color: #f2f2f2;
+  }
+
+  .loginpanel1{ 
+    margin: 90px 350px 0 350px;
+  } 
+
+  :host ::ng-deep .ant-tabs .ant-tabs-top-content{
+    border: 0 !important; 
+  }
+ 

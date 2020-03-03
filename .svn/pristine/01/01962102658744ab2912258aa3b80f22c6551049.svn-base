@@ -1,0 +1,287 @@
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import * as echarts from 'echarts';
+import { Router, ActivatedRoute } from '@angular/router';
+import { CommunicationService } from '../../service/communication.service'
+import { DeviceService } from '../service/device.service'
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { Subscription }   from 'rxjs';
+interface ItemData { 
+  costFrom: string;
+  cost: string;
+  incomeFrom: string;
+  income: Number;
+  profit: Number;
+  carbonOut: Number;
+}
+
+@Component({
+  selector: 'app-result',
+  templateUrl: './result.component.html',
+  styleUrls: ['./result.component.scss'],
+
+})
+export class ResultComponent implements OnInit {
+  resultForm: FormGroup; 
+  optimizerGoal = '1'
+  ifNeedNextStep: boolean = true;
+  loadNext: boolean = false;
+  queryParam = null; 
+  alignType: string = 'center';
+  listOfData: ItemData[] = [
+    { 
+      costFrom: '设备投资', 
+      cost: null, 
+      incomeFrom:  '售电', 
+      income: null,
+      profit: null , 
+      carbonOut: null 
+    },{ 
+      costFrom: '设备运维', 
+      cost: null, 
+      incomeFrom:  '售蒸汽', 
+      income: null,
+      profit: null , 
+      carbonOut: null 
+    },{ 
+      costFrom: '购电成本', 
+      cost: null, 
+      incomeFrom:  '售热水', 
+      income: null,
+      profit: null , 
+      carbonOut: null 
+    },{ 
+      costFrom: '燃料成本', 
+      cost: null, 
+      incomeFrom:  '售冷', 
+      income: null,
+      profit: null , 
+      carbonOut: null 
+    },{ 
+      costFrom: '-', 
+      cost: '-', 
+      incomeFrom:  '售暖', 
+      income: null,
+      profit: null , 
+      carbonOut: null 
+    },{ 
+      costFrom: '', 
+      cost: null, 
+      incomeFrom:  '', 
+      income: null,
+      profit: null , 
+      carbonOut: null 
+    }
+  ]
+  echartBar = ["cchp","elec_boiler_heat","elec_boiler_heat"];
+
+  flagLoad = false;
+  flagRes = false;
+  subscription: Subscription;
+  constructor(
+    private fb: FormBuilder,
+    private router: Router ,
+    public communication: CommunicationService,
+    private Api: DeviceService,
+    public activatedRoute: ActivatedRoute,
+    private message: NzMessageService,
+  ) { 
+    this.subscription = communication.missionAnnounced$.subscribe(
+      mission => {
+    });
+  }
+
+  doCalculate(): void {
+    this.flagLoad = true;
+    this.loadNext = true;
+
+    let param = { projectId:this.queryParam.proId,data:[]}
+    let result = []; 
+    if(this.resultForm.value.optimizerGoal === '3'){ 
+      result.push({equipmentName:'multi-objective',isCheck: true,param1:this.resultForm.value.economicWeight,
+                  param2:this.resultForm.value.environmentalProtectionWeight,param3:null,order:25})
+    }else if(this.resultForm.value.optimizerGoal === '1'){ 
+      result.push({equipmentName:'economy',isCheck: true,param1:null,param2:null,param3:null,order:24})
+    }else if(this.resultForm.value.optimizerGoal === '2'){ 
+      result.push({equipmentName:'environment',isCheck: true,param1:null,param2:null,param3:null,order:26})
+    } 
+    param.data = result; 
+    this.Api.updateEquipmentEquipment(param).subscribe(response => {  
+      this.loadNext = false;
+      if(response && response[200] && response[200] == "success"){
+        
+        this.Api.calcresult({projectId:1}).subscribe(response => { 
+          let result = response;
+          if(result){
+            let temp =[];
+            for(let i  in result){
+              // temp.push()
+            }
+   
+            this.flagLoad = false;
+            this.flagRes = true; 
+      
+            this.initChart([],'#02B980');
+            this.initPie([]);
+
+          } 
+        })  
+      }  
+    })  
+  }
+
+  initChart(chartData,color): void {
+    const myChart = echarts.init(document.getElementById('chart'));
+    // 指定图表的配置项和数据
+    let option = {
+        color:[color],
+        grid: {
+          bottom: 40,
+          left: 80,
+          right: 80,
+          top: 40
+        }, 
+        tooltip: {
+          trigger: 'axis'
+        },
+        xAxis: {
+            type: 'value',  
+            minInterval: 1,
+            splitLine: {
+              show: false
+            },
+            axisLabel: {
+                show: true,
+                interval:0, 
+            }, 
+        },
+        yAxis: {
+            type: 'value',
+            name: '单位：MW',
+            splitLine: {
+              show: false
+            }
+        },
+        series: [{
+            data: chartData,
+            type: 'line'
+        }]
+    };
+
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+    setTimeout(()=>{
+      myChart.resize();
+    },200)
+    window.onresize = function () {
+      myChart.resize();
+    }
+  }
+
+  initPie(chartData): void {
+    const myChartPie = echarts.init(document.getElementById('chartPie'));
+    chartData = [
+      {value:335, name:'直接访问'},
+      {value:310, name:'邮件营销'},
+      {value:234, name:'联盟广告'},
+      {value:135, name:'视频广告'}, 
+    ] 
+    // 指定图表的配置项和数据
+    let option = {
+        color:['#02B980','#3aa1ff','#fbd437','#f2637b'],
+        tooltip: {
+          trigger: 'item',
+          formatter: "{b} : {c} ({d}%)"
+        }, 
+        legend: {
+          orient: 'vertical',
+          right: '10%',
+          top:'20%',
+          itemGap: 15,
+          formatter: function(name){
+            let text;
+            let totalValue = 0;
+            let nowValue;
+            chartData.map(item=>{
+              if(item.name == name){
+                nowValue = item.value;
+                text = `${name}   ${item.value}t`;
+              }
+              totalValue += item.value;
+            })
+            text += `   ${((nowValue/totalValue)*100).toFixed(2)}%`
+            
+            return text
+          }, 
+        },
+        series: [{
+          data:chartData,
+          label:{
+            show:true,
+            formatter: '{b}: {d}%'
+          },
+          radius : '55%',
+          center: ['30%', '50%'],
+          type: 'pie'
+        }]
+    };
+
+    // 使用刚指定的配置项和数据显示图表。
+    myChartPie.setOption(option);
+    setTimeout(()=>{
+      myChartPie.resize();
+    },200)
+    window.onresize = function () {
+      myChartPie.resize();
+    }
+  }
+
+  initGoal(): void {
+    this.Api.getDeviceInfo({projectId:this.queryParam.proId}).subscribe(response => { 
+      let result = response; 
+      if(result){   
+        for(let i in result){ 
+          if(result[i].equipmentName === "economy" && result[i].isCheck === true) this.optimizerGoal = '1'; 
+          if(result[i].equipmentName === "environment" && result[i].isCheck === true) this.optimizerGoal = '2';
+          if(result[i].equipmentName === "multi-objective" && result[i].isCheck === true){
+            this.optimizerGoal = '3';
+            this.resultForm.patchValue({economicWeight:result[i].param1})    
+            this.resultForm.patchValue({environmentalProtectionWeight:result[i].param2})
+          } 
+        } 
+      } 
+    }) 
+  }
+
+  ngOnInit() { 
+    sessionStorage.setItem("localPage", "result")
+    this.activatedRoute.queryParams.subscribe(queryParam => {
+      if(queryParam == {} || queryParam.create ==undefined){
+        this.router.navigate(['/'])  
+      }
+  
+      this.queryParam = queryParam; 
+    });
+    let isdisabled = (this.queryParam.edit == "true" ? true:false) || (this.queryParam.create == "true" ? true:false) 
+
+    this.resultForm = this.fb.group({ 
+      environmentalProtectionWeight:[{value:null,disabled:!isdisabled}],
+      economicWeight:[{value:null,disabled:!isdisabled}],
+      optimizerGoal: [{value:'1',disabled:!isdisabled}],
+    })
+ 
+    this.initGoal(); 
+  }
+
+  ngAfterViewInit(): void {
+    
+  }
+  previousStep(): void{ 
+    this.router.navigate(['/device'], { 
+      queryParams: this.queryParam
+    }) 
+  }
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+}

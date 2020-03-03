@@ -1,0 +1,56 @@
+.chartBox{
+    width: 48%;
+    box-shadow: #ccc 0px 0px 10px;
+}
+
+.panelResult{
+    background-color: #ffffff;
+    padding: 30px 70px;
+}
+
+.marginStyle{
+    margin-right: 50px;
+}
+
+.panelChild{
+    display: flex;
+    justify-content: space-between;
+}
+
+.panelChildnone{
+    display: none;
+}
+
+.chartBoxtitle{
+    padding: 15px 0px 5px 15px; 
+    border-bottom: 1px solid #ccc;
+}
+
+.tableBox{
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.pdfTable th{
+    background-color: #02B980 !important;
+    color:white
+}
+
+#finalPDF4,#finalPDF3,#finalPDF2,#finalPDF1{
+    padding-left: 27px;
+    padding-right: 27px; 
+    margin-bottom: 35px;
+}
+  
+.title5{
+    padding-left: 27px;
+    padding-right: 27px;
+    margin-top: 35px;
+    margin-bottom: 15px;
+}
+.title3{
+    margin-bottom: 15px;
+}
+
+@import '../energy/energy.component.scss'; //导入外部scss文件
+@import '../device/device.component.scss';

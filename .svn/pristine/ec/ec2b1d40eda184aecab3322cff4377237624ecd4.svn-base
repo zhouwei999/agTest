@@ -1,0 +1,91 @@
+<div>
+    <div class="panelResult">
+      <div class="title-two">优化目标</div>
+      <div class="panelChild" style="margin-top: 20px;margin-bottom: 30px;">
+        <form nz-form [nzLayout]="'inline'" [formGroup]="resultForm">  
+          <nz-form-item nzFlex>
+              <nz-form-control>
+                <nz-radio-group formControlName="optimizerGoal" [(ngModel)]="optimizerGoal">
+                  <label nz-radio nzValue="1" class="marginStyle">经济性最优</label>
+                  <label nz-radio nzValue="2" class="marginStyle">环保性指标最优</label>
+                  <label nz-radio nzValue="3" class="marginStyle">多目标最优</label> 
+                </nz-radio-group>
+              </nz-form-control>
+              <nz-form-label [nzNoColon]="true">经济性权重(%)</nz-form-label>   
+              <nz-form-control nzErrorTip="请输入经济性权重！" class="marginStyle">
+                  <nz-input-number [nzMin]="0" nz-input formControlName="economicWeight" [nzDisabled]="optimizerGoal!=='3'"></nz-input-number>
+              </nz-form-control>
+              <nz-form-label [nzNoColon]="true">环保性权重(%)</nz-form-label>   
+              <nz-form-control nzErrorTip="请输入环保性权重！">
+                  <nz-input-number [nzMin]="0" nz-input formControlName="environmentalProtectionWeight" [nzDisabled]="optimizerGoal!=='3'"></nz-input-number>
+              </nz-form-control>
+          </nz-form-item>  
+        </form> 
+        <button nz-button nzType="primary" (click)="doCalculate()">开始计算</button>
+      </div>
+    </div>  
+    <div id="result" style="min-height: 400px;background-color: #ffffff;">
+      <div [ngClass]="{'panelChild':flagRes,'panelChildnone':!flagRes}" style="padding: 15px 70px;background-color: #f2f2f2;">
+          <span class="title-two">优化结果展示</span>
+          <button nz-button nzType="primary">导出为PDF</button>
+      </div>
+      <div class="panel">
+        <div style="display: flex;padding-left: 30px;padding-right: 30px;margin-bottom: 35px;align-items: center;" [ngStyle]="{'justify-content':flagLoad&&!flagRes?'center':'space-between'}">
+          <div class="chartBox" [ngStyle]="{'display':flagRes?'block':'none'}">
+            <div class="chartBoxtitle">设备容量</div>
+            <!-- 图形 -->
+            <div style="padding: 15px;"> 
+              <div id="chart" style="width: 100%;height:250px;"></div>
+            </div> 
+          </div> 
+          <div [ngStyle]="{'display':flagLoad?'block':'none','text-align':'center'}"><div><i nz-icon nzType="loading" nzTheme="outline"></i></div>
+          计算中...</div> 
+          <div class="chartBox" [ngStyle]="{'display':flagRes?'block':'none'}">
+            <div class="chartBoxtitle">燃料量占比</div>
+            <div style="padding:15px;display: flex;">  
+              <div id="chartPie" style="width: 100%;height:250px;"></div>
+              <div>
+
+              </div>
+            </div> 
+          </div>
+        </div>  
+        <div class="tableBox" [ngStyle]="{'display':flagRes?'block':'none'}">
+          <nz-table
+            #ajaxTable
+            nzBordered 
+            nzShowSizeChanger
+            [nzFrontPagination]="false"
+            [nzData]="listOfData"
+            [nzLoading]="loading" 
+          >
+            <thead>
+              <tr>
+                <th [nzAlign]='alignType'>序号</th>
+                <th [nzAlign]='alignType'>成本来源</th>
+                <th [nzAlign]='alignType'>成本(万元/年)</th>
+                <th [nzAlign]='alignType'>收入来源</th>
+                <th [nzAlign]='alignType'>收入(万元/年)</th>
+                <th [nzAlign]='alignType'>收益(万元/年)</th>
+                <th [nzAlign]='alignType'>碳排放(吨/年)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let data of ajaxTable.data;let i = index">
+                <td [nzAlign]='alignType'><span *ngIf="i !== 5">{{i+1}}</span><span *ngIf="i === 5">合计</span></td>
+                <td [nzAlign]='alignType' [attr.colspan]="i === 5 ? 2 : 1">{{ data.costFrom }}</td>
+                <td [nzAlign]='alignType' *ngIf="i !== 5">{{ data.cost }}</td>
+                <td [nzAlign]='alignType' [attr.colspan]="i === 5 ? 2 : 1">{{ data.incomeFrom }}</td>
+                <td [nzAlign]='alignType' *ngIf="i !== 5">{{ data.income }}</td>
+                <td [nzAlign]='alignType' [attr.rowspan]="i === 0 ? 6 : 1" *ngIf="i === 0">{{ data.profit }}</td>
+                <td [nzAlign]='alignType' [attr.rowspan]="i === 0 ? 6 : 1" *ngIf="i === 0">{{ data.carbonOut }}</td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
+      </div> 
+    </div>
+    <div class="stepBtns">
+        <button nz-button style="margin-right: 15px;" (click)="previousStep()"><i nz-icon nzType="arrow-left" nzTheme="outline"></i>上一步</button>
+    </div>
+  </div>

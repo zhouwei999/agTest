@@ -1,0 +1,58 @@
+:host ::ng-deep .ant-tabs.ant-tabs-card .ant-tabs-card-bar .ant-tabs-tab {
+    border: 0;
+    border-top: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    border-radius: 0;
+}
+
+:host ::ng-deep .ant-tabs-tab-active{
+    border-bottom: 0 !important; 
+}
+
+:host ::ng-deep .ant-tabs.ant-tabs-card .ant-tabs-card-bar .ant-tabs-tab{
+    margin-right: 0 ;
+}
+
+:host ::ng-deep .ant-tabs-bar{
+    margin:0;
+    border:0;
+    border-left: 1px solid #ccc;
+}
+
+:host ::ng-deep .ant-tabs .ant-tabs-top-content, .ant-tabs .ant-tabs-bottom-content{
+    border: 1px solid #ccc;
+}
+
+  .editable-cell {
+    position: relative;
+  }
+
+  .editable-cell-value-wrap {
+    padding: 5px 12px;
+    cursor: pointer;
+  }
+
+  .editable-row:hover .editable-cell-value-wrap {
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    padding: 4px 11px;
+  }
+  
+  .editable-cell-value-wrap {
+      min-height: 30px;
+  }
+
+  .ant-table-thead > tr.ant-table-row-hover:not(.ant-table-expanded-row):not(.ant-table-row-selected) > td, .ant-table-tbody > tr.ant-table-row-hover:not(.ant-table-expanded-row):not(.ant-table-row-selected) > td, .ant-table-thead > tr:hover:not(.ant-table-expanded-row):not(.ant-table-row-selected) > td, .ant-table-tbody > tr:hover:not(.ant-table-expanded-row):not(.ant-table-row-selected) > td{
+    background-color: #ffffff;
+  }
+
+  .inputMargin{
+    margin-right: 6vw;
+  }
+
+  :host th{
+    background-color: #02B980;
+    color: #ffffff;
+    border-right: 0 !important ;
+  }

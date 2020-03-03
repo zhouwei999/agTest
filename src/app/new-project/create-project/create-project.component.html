@@ -1,0 +1,38 @@
+<div class="loginpanel">
+    <div class="title-two" style="margin-bottom: 20px;">欢迎使用区域综合能源规划设计平台!</div>
+    <div style="display: flex;">
+        <div>
+          <img src='../../../assets/pics/loginPic.png' >
+        </div>
+        <div style="width:40%;margin-left: 50px;"> 
+            <div class="title-three">新建项目</div>
+            <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()"> 
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24" [nzNoColon]="true" style="text-align: left;">项目名称</nz-form-label>
+                <nz-form-control [nzSm]="20" [nzXs]="24" nzErrorTip="请输入项目名称!">
+                <input nz-input id="website" formControlName="proName" placeholder='项目名称-{{nowTime}}' />
+                </nz-form-control>
+              </nz-form-item> 
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24" [nzNoColon]="true" style="text-align: left;">项目描述</nz-form-label>
+                <nz-form-control [nzSm]="20" [nzXs]="24" nzErrorTip="请输入项目描述">
+                    <textarea formControlName="proDec" nz-input rows="4" placeholder="请输入"></textarea>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item nz-row class="register-area">
+                <nz-form-control [nzSpan]="14" [nzOffset]="4">
+                <button nz-button nzType="primary">创建</button>
+                </nz-form-control>
+              </nz-form-item>
+            </form>
+            <nz-divider></nz-divider> 
+            <div>
+                <div class="title-three" style="margin-bottom: 25px;">最近项目</div>
+                <div *ngFor="let item of recentPros" style="margin-bottom: 6px;">
+                  <a href="javascript:void(0)" (click)="seePro(item)">{{item.projectName}}-{{item.createTime | slice:0:10}}</a><span style="color:#02B980;margin-left: 20px;">></span>
+                </div>
+                <a href="javascript:void(0)" (click)="seeMorePro()" style="color:#02B980;text-decoration: underline;">更多>></a>
+            </div>
+        </div>
+    </div>
+</div>

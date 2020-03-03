@@ -1,0 +1,200 @@
+<div class="panel">
+    <div class="title-two">
+        能源市场
+    </div>
+    <nz-divider></nz-divider> 
+    <div style="border:1px solid #ccc">
+        <div class="titleBox">
+            <span class="cardTitle">电价</span>
+            <a (click)="showModal()">峰平谷时间</a>
+        </div>
+        <div class="contentBox" style="display: flex;">
+            <div style="width:50%;margin-left: 15px;margin-top: 40px;">
+                <form nz-form  [formGroup]="energyParamForm">
+                    <div style="display: flex;">
+                        <nz-form-item nzFlex class="marginStyle"> 
+                            <nz-form-label [nzNoColon]="true"><span class="labelTitle">购电价格</span>峰价(元/kWh)</nz-form-label>   
+                            <nz-form-control>
+                                <nz-input-number [nzMin]="0" (nzBlur)="refreshChart()" nz-input formControlName="peak" class="inputWidth"></nz-input-number>
+                            </nz-form-control>
+                        </nz-form-item>
+                        <nz-form-item nzFlex class="marginStyle"> 
+                            <nz-form-label [nzNoColon]="true">平价(元/kWh)</nz-form-label>         
+                            <nz-form-control>
+                                <nz-input-number [nzMin]="0" (nzBlur)="refreshChart()" nz-input formControlName="shoulder" class="inputWidth"></nz-input-number>
+                            </nz-form-control>
+                        </nz-form-item>
+                        <nz-form-item nzFlex> 
+                            <nz-form-label [nzNoColon]="true">谷价(元/kWh)</nz-form-label>         
+                            <nz-form-control>
+                                <nz-input-number [nzMin]="0" (nzBlur)="refreshChart()" nz-input formControlName="off-peak" class="inputWidth"></nz-input-number>
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                    <div style="display: flex;">
+                        <nz-form-item nzFlex> 
+                            <nz-form-label [nzNoColon]="true"><span class="labelTitle">售电价格</span>售价(元/kWh)</nz-form-label>         
+                            <nz-form-control>
+                                <nz-input-number [nzMin]=0 nz-input formControlName="sale_elec" class="inputWidth"></nz-input-number>
+                            </nz-form-control>
+                        </nz-form-item> 
+                    </div>
+                </form> 
+            </div> 
+            <!-- 图形 -->
+            <div style="width: 50%;padding:15px">
+                <span style="margin-right: 10px;">单位：元/kwh</span>
+                <i nz-icon nzType="sync" style="cursor: pointer;" nzTheme="outline" (click)="refreshChart()"></i>
+                <div id="chart" style="width: 100%;height:160px;"></div>
+            </div>  
+        </div>
+    </div>
+    <div style="display: flex;justify-content: space-between;margin-top: 15px;">
+        <div style="border:1px solid #ccc;width:49%">
+            <div class="titleBox">
+                <span class="cardTitle">冷热价</span> 
+            </div>
+            <form nz-form [formGroup]="energyParamForm2" style="margin: auto;">
+                <div style="display: flex;justify-content: space-around;margin-top: 25px;">
+                    <nz-form-item nzFlex> 
+                        <nz-form-label [nzNoColon]="true">冷价(元/GJ)</nz-form-label>   
+                        <nz-form-control>
+                            <nz-input-number [nzMin]=0 nz-input formControlName="cold" class="inputWidth2"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex> 
+                        <nz-form-label [nzNoColon]="true">热水价(元/GJ)</nz-form-label>         
+                        <nz-form-control>
+                            <nz-input-number [nzMin]=0 nz-input formControlName="hotwater" class="inputWidth2"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+                <div style="display: flex;justify-content: space-around;">
+                    <nz-form-item nzFlex> 
+                        <nz-form-label [nzNoColon]="true">蒸汽价(元/GJ)</nz-form-label>         
+                        <nz-form-control>
+                            <nz-input-number [nzMin]=0 nz-input formControlName="stream" class="inputWidth2"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex> 
+                        <nz-form-label [nzNoColon]="true">供暖价(元/GJ)</nz-form-label>         
+                        <nz-form-control>
+                            <nz-input-number [nzMin]=0 nz-input formControlName="heat" class="inputWidth2"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div> 
+            </form> 
+        </div>
+        <div style="border:1px solid #ccc;width:49%">
+            <div class="titleBox">
+                <span class="cardTitle">电价</span> 
+            </div>
+            <form nz-form [formGroup]="energyParamForm3" style="margin: auto;">
+                <div style="display: flex;justify-content: space-around;margin-top: 25px;">
+                    <nz-form-item nzFlex> 
+                        <nz-form-label [nzNoColon]="true">煤(元/t)</nz-form-label>   
+                        <nz-form-control>
+                            <nz-input-number [nzMin]=0 nz-input formControlName="coal" class="inputWidth2"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex> 
+                        <nz-form-label [nzNoColon]="true">天然气(元/m³)</nz-form-label>         
+                        <nz-form-control>
+                            <nz-input-number [nzMin]=0 nz-input formControlName="gas" class="inputWidth2"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+                <div style="display: flex;justify-content: space-around;">
+                    <nz-form-item nzFlex> 
+                        <nz-form-label [nzNoColon]="true">生物质(元/t)</nz-form-label>         
+                        <nz-form-control>
+                            <nz-input-number [nzMin]=0 nz-input formControlName="biofuel" class="inputWidth2"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex> 
+                        <nz-form-label [nzNoColon]="true">燃油(元/t)</nz-form-label>         
+                        <nz-form-control>
+                            <nz-input-number [nzMin]=0 nz-input formControlName="oil" class="inputWidth2"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item> 
+                </div>
+            </form> 
+        </div>
+    </div>
+    <div class="stepBtns">
+        <button nz-button style="margin-right: 15px;" (click)="previousStep()"><i nz-icon nzType="arrow-left" nzTheme="outline"></i>上一步</button>
+        <button nz-button nzType="primary" (click)="saveAnextStep()" [nzLoading]="loadNext">下一步<i nz-icon nzType="arrow-right" nzTheme="outline"></i></button>
+    </div>
+</div>
+ 
+<ng-template #tplTitle>
+    <span>峰平谷时间</span><span class="tipstyle">注：请勿选择重叠时间段</span>
+</ng-template>
+
+<!-- 峰平谷时间模态框 -->
+<nz-modal
+  [(nzVisible)]="isVisible"  
+  [nzOkLoading]="isOkLoading"
+  [nzFooter]=null
+  nzWidth = '450px'
+  [nzTitle]= 'tplTitle'
+  (nzOnCancel)="closeModal()"
+> 
+   <div>
+       <div style="display: flex;margin-bottom: 15px;">
+            <div class="setTimeTitle">峰时</div>
+            <div> 
+                <div *ngFor="let one of topCount" style="display: flex;align-items: center;margin-bottom: 10px;">
+                    <div class="setTimeInput">
+                        <nz-select [(ngModel)]="one.name" nzAllowClear> 
+                            <nz-option *ngFor="let time of timeChoose" [nzValue]="time" [nzLabel]="time"></nz-option> 
+                        </nz-select>~
+                        <nz-select [(ngModel)]="one.name2" nzAllowClear> 
+                            <nz-option *ngFor="let time of timeChoose" [nzValue]="time" [nzLabel]="time"></nz-option> 
+                        </nz-select>
+                    </div>  
+                    <div class="addIcon" *ngIf = "topCount.length != 1" (click)="deleteTimeChose(1,one.count)">-</div> 
+                    <div class="addIcon" *ngIf = "one.count == topCount[topCount.length-1].count" (click)="addTimeChose(1)">+</div>
+                </div> 
+            </div>
+       </div>
+       <div style="display: flex;margin-bottom: 15px;">
+            <div class="setTimeTitle">平时</div>
+            <div> 
+                <div *ngFor="let one of pinCount" style="display: flex;align-items: center;margin-bottom: 10px;">
+                    <div class="setTimeInput">
+                        <nz-select [(ngModel)]="one.name" nzAllowClear>  
+                            <nz-option *ngFor="let time of timeChoose" [nzValue]="time" [nzLabel]="time"></nz-option> 
+                        </nz-select>~
+                        <nz-select [(ngModel)]="one.name2" nzAllowClear> 
+                            <nz-option *ngFor="let time of timeChoose" [nzValue]="time" [nzLabel]="time"></nz-option> 
+                        </nz-select>
+                    </div>  
+                    <div class="addIcon" *ngIf = "pinCount.length != 1" (click)="deleteTimeChose(2,one.count)">-</div> 
+                    <div class="addIcon" *ngIf = "one.count == pinCount[pinCount.length-1].count" (click)="addTimeChose(2)">+</div>
+                </div> 
+            </div>
+       </div>
+       <div style="display: flex;">
+            <div class="setTimeTitle">谷时</div>
+            <div> 
+                <div *ngFor="let one of lowCount" style="display: flex;align-items: center;margin-bottom: 10px;">
+                    <div class="setTimeInput">
+                        <nz-select [(ngModel)]="one.name" nzAllowClear>  
+                            <nz-option *ngFor="let time of timeChoose" [nzValue]="time" [nzLabel]="time"></nz-option> 
+                        </nz-select>~
+                        <nz-select [(ngModel)]="one.name2" nzAllowClear> 
+                            <nz-option *ngFor="let time of timeChoose" [nzValue]="time" [nzLabel]="time"></nz-option> 
+                        </nz-select>
+                    </div>  
+                    <div class="addIcon" *ngIf = "lowCount.length != 1" (click)="deleteTimeChose(3,one.count)">-</div> 
+                    <div class="addIcon" *ngIf = "one.count == lowCount[lowCount.length-1].count" (click)="addTimeChose(3)">+</div>
+                </div> 
+            </div>
+       </div>
+   </div> 
+   <div style="margin-top: 20px;text-align: center;">
+        <button nz-button nzType="default" style="margin-right: 20px;" (click)="closeModal()">取消</button>
+        <button nz-button nzType="primary" (click) = "saveTime()">保存</button> 
+   </div>
+</nz-modal>

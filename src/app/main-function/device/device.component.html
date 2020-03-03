@@ -1,0 +1,352 @@
+<div class="panel">
+    <div style="display: flex;align-items: center;">
+        <div class="title-two">参与设备及参数</div>
+        <div class="tipTitle">提示：效率参数请输入0~1的小数。</div>
+    </div>
+    <form nz-form [formGroup]="deviceParamForm">
+    <div style="display: flex;justify-content: space-between;margin-top: 30px;"> 
+        <div style="border: 1px solid #ccc;width:49%;">
+            <div style="margin-top: 45px; margin-left: 50px;">
+                <div nz-row nzType="flex" nzAlign="middle">
+                    <nz-form-item class="widthStyle"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox formControlName="cchpisCheck" (ngModelChange)="requiredChange(['cchpparam1','cchpparam2','cchpparam3'],$event)" [(ngModel)]="cchpisCheck"><span class="labelTitle">冷热电三联供(CCHP)</span></label>                  
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex class="widthStyle2">
+                        <nz-form-label [nzNoColon]="true">热效率</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入热效率！">
+                            <nz-input-number [nzMin]=0 [nzMax]=1 nz-input formControlName="cchpparam1" [nzDisabled]="!cchpisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item> 
+                    <nz-form-item nzFlex class="widthStyle2"> 
+                        <nz-form-label [nzNoColon]="true">发电效率</nz-form-label>         
+                        <nz-form-control nzErrorTip="请输入发电效率！">
+                            <nz-input-number [nzMin]=0 [nzMax]=1 nz-input formControlName="cchpparam2" [nzDisabled]="!cchpisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item> 
+                    <nz-form-item nzFlex class="widthStyle2"> 
+                        <nz-form-label [nzNoColon]="true">冷效率</nz-form-label>         
+                        <nz-form-control nzErrorTip="请输入冷效率！">
+                            <nz-input-number [nzMin]=0 [nzMax]=1 nz-input formControlName="cchpparam3" [nzDisabled]="!cchpisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item> 
+                </div>  
+                <div nz-row nzType="flex" nzAlign="middle">
+                    <nz-form-item class="widthStyle"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox formControlName="chpisCheck" (ngModelChange)="requiredChange(['chpparam1','chpparam2'],$event)" [(ngModel)]="chpisCheck"><span class="labelTitle">热电联产(CHP)</span></label>
+                        </nz-form-control>
+                    </nz-form-item> 
+                    <nz-form-item nzFlex class="widthStyle3">
+                        <nz-form-label [nzNoColon]="true">热效率</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入热效率！">
+                            <nz-input-number [nzMin]=0 [nzMax]=1 nz-input formControlName="chpparam1" [nzDisabled]="!chpisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex class="widthStyle3">
+                        <nz-form-label [nzNoColon]="true">发电效率</nz-form-label>         
+                        <nz-form-control nzErrorTip="请输入发电效率！">
+                            <nz-input-number [nzMin]=0 [nzMax]=1 nz-input formControlName="chpparam2" [nzDisabled]="!chpisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>  
+                </div>
+                <div nz-row nzType="flex" nzAlign="middle">
+                    <nz-form-item class="widthStyle"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox formControlName="isCheckBiomass" (ngModelChange)="requiredChange(['bio_boiler_steamparam1'],$event)" [(ngModel)]="isCheckBiomass"><span class="labelTitle">生物质锅炉</span></label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item class="widthStyle4"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox [nzDisabled]="!isCheckBiomass" formControlName="bio_boiler_steamisCheck" [(ngModel)]="bio_boiler_steamisCheck">蒸汽</label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex class="widthStyle5">
+                        <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入效率！">
+                            <nz-input-number [nzMin]=0 [nzMax]=1 nz-input formControlName="bio_boiler_steamparam1" [nzDisabled]="!bio_boiler_steamisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item class="widthStyle4"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox [nzDisabled]="!isCheckBiomass" (ngModelChange)="requiredChange(['bio_boiler_heatparam1'],$event)"  formControlName="bio_boiler_heatisCheck" [(ngModel)]="bio_boiler_heatisCheck">热水</label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex class="widthStyle5">
+                        <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入效率！">
+                            <nz-input-number [nzMin]=0 [nzMax]=1 nz-input formControlName="bio_boiler_heatparam1" [nzDisabled]="!bio_boiler_heatisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+                <div nz-row nzType="flex" nzAlign="middle">
+                    <nz-form-item class="widthStyle"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox formControlName="isCheckElectric" [(ngModel)]="isCheckElectric"><span class="labelTitle">电锅炉</span></label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item class="widthStyle4"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox [nzDisabled]="!isCheckElectric" (ngModelChange)="requiredChange(['elec_boiler_steamparam1'],$event)" formControlName="elec_boiler_steamisCheck" [(ngModel)]="elec_boiler_steamisCheck">蒸汽</label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex class="widthStyle5">
+                        <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入效率！">
+                            <nz-input-number nz-input [nzMin]=0 [nzMax]=1 formControlName="elec_boiler_steamparam1" [nzDisabled]="!elec_boiler_steamisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item class="widthStyle4"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox [nzDisabled]="!isCheckElectric" (ngModelChange)="requiredChange(['elec_boiler_heatparam1'],$event)" formControlName="elec_boiler_heatisCheck" [(ngModel)]="elec_boiler_heatisCheck">热水</label>
+                        </nz-form-control>
+                    </nz-form-item> 
+                    <nz-form-item nzFlex class="widthStyle5">
+                        <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入效率！">
+                            <nz-input-number nz-input [nzMin]=0 [nzMax]=1 formControlName="elec_boiler_heatparam1" [nzDisabled]="!elec_boiler_heatisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+                <div nz-row nzType="flex" nzAlign="middle">
+                    <nz-form-item class="widthStyle"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox formControlName="isCheckCoal" [(ngModel)]="isCheckCoal"><span class="labelTitle">燃煤锅炉</span></label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item class="widthStyle4"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox [nzDisabled]="!isCheckCoal" (ngModelChange)="requiredChange(['coal_boiler_steamparam1'],$event)" formControlName="coal_boiler_steamisCheck" [(ngModel)]="coal_boiler_steamisCheck">蒸汽</label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex class="widthStyle5">
+                        <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入效率！">
+                            <nz-input-number [nzMin]=0 [nzMax]=1 nz-input formControlName="coal_boiler_steamparam1" [nzDisabled]="!coal_boiler_steamisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item class="widthStyle4"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox [nzDisabled]="!isCheckCoal" (ngModelChange)="requiredChange(['coal_boiler_heatparam1'],$event)" formControlName="coal_boiler_heatisCheck" [(ngModel)]="coal_boiler_heatisCheck">热水</label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex class="widthStyle5">
+                        <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入效率！">
+                            <nz-input-number [nzMin]=0 [nzMax]=1 nz-input formControlName="coal_boiler_heatparam1" [nzDisabled]="!coal_boiler_heatisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+                <div nz-row nzType="flex" nzAlign="middle">
+                    <nz-form-item class="widthStyle"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox formControlName="isCheckGas" [(ngModel)]="isCheckGas"><span class="labelTitle">燃气锅炉</span></label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item class="widthStyle4"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox [nzDisabled]="!isCheckGas" (ngModelChange)="requiredChange(['gas_boiler_steamparam1'],$event)" [(ngModel)]="gas_boiler_steamisCheck" formControlName="gas_boiler_steamisCheck">蒸汽</label>
+                        </nz-form-control>
+                    </nz-form-item> 
+                    <nz-form-item nzFlex class="widthStyle5"> 
+                        <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入效率！">
+                            <nz-input-number [nzMin]=0 [nzMax]=1 nz-input formControlName="gas_boiler_steamparam1" [nzDisabled]="!gas_boiler_steamisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item class="widthStyle4"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox [nzDisabled]="!isCheckGas" (ngModelChange)="requiredChange(['gas_boiler_heatparam1'],$event)" formControlName="gas_boiler_heatisCheck" [(ngModel)]="gas_boiler_heatisCheck">热水</label>
+                        </nz-form-control>
+                    </nz-form-item> 
+                    <nz-form-item nzFlex class="widthStyle5">
+                        <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入效率！">
+                            <nz-input-number [nzMin]=0 [nzMax]=1 nz-input formControlName="gas_boiler_heatparam1" [nzDisabled]="!gas_boiler_heatisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+                <div nz-row nzType="flex" nzAlign="middle">
+                    <nz-form-item class="widthStyle"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox formControlName="heat_exchangerisCheck" (ngModelChange)="requiredChange(['heat_exchangerparam1'],$event)" [(ngModel)]="heat_exchangerisCheck"><span class="labelTitle">换热站</span></label> 
+                        </nz-form-control>
+                    </nz-form-item> 
+                    <nz-form-item nzFlex>
+                        <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入效率！">
+                            <nz-input-number [nzMin]=0 [nzMax]=1 nz-input formControlName="heat_exchangerparam1" [nzDisabled]="!heat_exchangerisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item> 
+                </div>
+                <div nz-row nzType="flex" nzAlign="middle">
+                    <nz-form-item class="widthStyle"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox formControlName="pvisCheck" (ngModelChange)="requiredChange(['pvparam1'],$event)" [(ngModel)]="pvisCheck"><span class="labelTitle">光伏</span></label> 
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex>
+                        <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入效率！">
+                            <nz-input-number [nzMin]=0 [nzMax]=1 nz-input formControlName="pvparam1" [nzDisabled]="!pvisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item> 
+                </div>
+            </div> 
+        </div>
+        <div style="border: 1px solid #ccc;width:49%">
+            <div style="margin-top: 45px; margin-left: 50px;"> 
+                <div nz-row nzType="flex" nzAlign="middle">
+                    <nz-form-item class="widthStyle"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox formControlName="isCheckWaterPump" [(ngModel)]="isCheckWaterPump"><span class="labelTitle">水源热泵</span></label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item class="widthStyle4"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox [nzDisabled]="!isCheckWaterPump" (ngModelChange)="requiredChange(['hp_water_heatparam1'],$event)" formControlName="hp_water_heatisCheck" [(ngModel)]="hp_water_heatisCheck">制热</label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex class="widthStyle5">
+                        <nz-form-label [nzNoColon]="true">COP</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入COP！">
+                            <nz-input-number [nzMin]=0 nz-input formControlName="hp_water_heatparam1" [nzDisabled]="!hp_water_heatisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item class="widthStyle4"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox [nzDisabled]="!isCheckWaterPump" (ngModelChange)="requiredChange(['hp_water_coldparam1'],$event)" formControlName="hp_water_coldisCheck" [(ngModel)]="hp_water_coldisCheck">制冷</label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex class="widthStyle5">
+                        <nz-form-label [nzNoColon]="true">COP</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入COP！">
+                            <nz-input-number [nzMin]=0 nz-input formControlName="hp_water_coldparam1" [nzDisabled]="!hp_water_coldisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div> 
+                <div nz-row nzType="flex" nzAlign="middle">
+                    <nz-form-item class="widthStyle"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox formControlName="isCheckGroundPump" [(ngModel)]="isCheckGroundPump"><span class="labelTitle">地源热泵</span></label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item class="widthStyle4"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox [nzDisabled]="!isCheckGroundPump" (ngModelChange)="requiredChange(['hp_ground_heatparam1'],$event)" formControlName="hp_ground_heatisCheck" [(ngModel)]="hp_ground_heatisCheck">制热</label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex class="widthStyle5">
+                        <nz-form-label [nzNoColon]="true">COP</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入COP！">
+                            <nz-input-number [nzMin]=0 nz-input formControlName="hp_ground_heatparam1" [nzDisabled]="!hp_ground_heatisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item class="widthStyle4"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox [nzDisabled]="!isCheckGroundPump" (ngModelChange)="requiredChange(['hp_ground_coldparam1'],$event)" formControlName="hp_ground_coldisCheck" [(ngModel)]="hp_ground_coldisCheck">制冷</label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex class="widthStyle5">
+                        <nz-form-label [nzNoColon]="true">COP</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入COP！">
+                            <nz-input-number nz-input [nzMin]=0 formControlName="hp_ground_coldparam1" [nzDisabled]="!hp_ground_coldisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+                <div nz-row nzType="flex" nzAlign="middle">
+                    <nz-form-item class="widthStyle"> 
+                        <nz-form-control nzErrorTip="请输入COP！">
+                            <label nz-col nz-checkbox formControlName="isCheckAirPump" [(ngModel)]="isCheckAirPump"><span class="labelTitle">空气源热泵</span></label>
+                        </nz-form-control>
+                    </nz-form-item> 
+                    <nz-form-item class="widthStyle4"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox [nzDisabled]="!isCheckAirPump" (ngModelChange)="requiredChange(['hp_air_heatparam1'],$event)" formControlName="hp_air_heatisCheck" [(ngModel)]="hp_air_heatisCheck">制热</label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex class="widthStyle5">
+                        <nz-form-label [nzNoColon]="true">COP</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入COP！">
+                            <nz-input-number [nzMin]=0 nz-input formControlName="hp_air_heatparam1" [nzDisabled]="!hp_air_heatisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item class="widthStyle4"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox [nzDisabled]="!isCheckAirPump" (ngModelChange)="requiredChange(['hp_air_coldparam1'],$event)" formControlName="hp_air_coldisCheck" [(ngModel)]="hp_air_coldisCheck">制冷</label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex class="widthStyle5">
+                        <nz-form-label [nzNoColon]="true">COP</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入COP！">
+                            <nz-input-number [nzMin]=0 nz-input formControlName="hp_air_coldparam1" [nzDisabled]="!hp_air_coldisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div> 
+                <div nz-row nzType="flex" nzAlign="middle">
+                    <nz-form-item class="widthStyle"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox formControlName="elec_coldisCheck" (ngModelChange)="requiredChange(['elec_coldparam1'],$event)" [(ngModel)]="elec_coldisCheck"><span class="labelTitle">电制冷</span></label> 
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex>
+                        <nz-form-label [nzNoColon]="true">COP</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入COP！">
+                            <nz-input-number [nzMin]=0 nz-input formControlName="elec_coldparam1" [nzDisabled]="!elec_coldisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item> 
+                </div>
+                <div nz-row nzType="flex" nzAlign="middle">
+                    <nz-form-item class="widthStyle"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox formControlName="libr_coldisCheck" (ngModelChange)="requiredChange(['libr_coldparam1'],$event)" [(ngModel)]="libr_coldisCheck"><span class="labelTitle">溴化锂制冷</span></label> 
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex>
+                        <nz-form-label [nzNoColon]="true">COP</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入COP！">
+                            <nz-input-number [nzMin]=0 nz-input formControlName="libr_coldparam1" [nzDisabled]="!libr_coldisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item> 
+                </div>
+                <div nz-row nzType="flex" nzAlign="middle">
+                    <nz-form-item class="widthStyle"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox formControlName="wind_elecisCheck" (ngModelChange)="requiredChange(['wind_elecparam1','wind_elecparam2'],$event)" [(ngModel)]="wind_elecisCheck"><span class="labelTitle">风机</span></label> 
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item nzFlex class="widthStyle3">
+                        <nz-form-label [nzNoColon]="true">额定风速(m/s)</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入额定风速！">
+                            <nz-input-number [nzMin]=0 nz-input formControlName="wind_elecparam1" [nzDisabled]="!wind_elecisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item> 
+                    <nz-form-item nzFlex class="widthStyle3">
+                        <nz-form-label [nzNoColon]="true">切入风速(m/s)</nz-form-label>   
+                        <nz-form-control nzErrorTip="请输入切入风速！">
+                            <nz-input-number [nzMin]=0 nz-input formControlName="wind_elecparam2" [nzDisabled]="!wind_elecisCheck"></nz-input-number>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+                <div nz-row nzType="flex" nzAlign="middle">
+                    <nz-form-item class="widthStyle"> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox formControlName="elec_stoisCheck"><span class="labelTitle">储电</span></label>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item> 
+                        <nz-form-control >
+                            <label nz-col nz-checkbox formControlName="hotwater_stoisCheck"><span class="labelTitle">储热(水)</span></label> 
+                        </nz-form-control>
+                    </nz-form-item>
+                </div> 
+            </div> 
+        </div> 
+    </div> 
+</form>
+    <div class="stepBtns">
+        <button nz-button style="margin-right: 15px;" (click)="previousStep()"><i nz-icon nzType="arrow-left" nzTheme="outline"></i>上一步</button>
+        <button nz-button nzType="primary" (click)="saveAnextStep()" [nzLoading]="loadNext">下一步<i nz-icon nzType="arrow-right" nzTheme="outline"></i></button>
+    </div>
+</div>

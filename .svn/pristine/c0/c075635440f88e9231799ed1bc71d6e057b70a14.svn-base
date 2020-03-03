@@ -1,0 +1,50 @@
+/* You can add global styles to this file, and also import other style files */
+a{
+    text-decoration: none;
+}
+
+.title-three {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.title-two { 
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.title-one { 
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.panel { 
+    background-color: #ffffff;
+    padding: 50px 65px;
+}
+.loginpanel{
+    background-color: #ffffff;
+    box-shadow: 1px 1px 3px #ccc;
+    margin:50px 70px;
+    padding: 35px 30px;
+}
+  
+.anchorBL{
+    display:none !important;
+}
+.clean{
+    clear: both;
+}
+.left{
+    float: left;
+}
+.right{
+    float: right;
+}
+.stepBtns{
+    text-align: right;
+    margin-top: 30px;
+}
+ul,li{
+    list-style:none; 
+}

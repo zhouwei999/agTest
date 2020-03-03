@@ -1,0 +1,104 @@
+<div style="display: flex;margin: 30px 70px;">
+    <div class="title-two">历史项目</div>
+    <button nz-button nzType="primary" style="margin-left: 20px;" (click)="showModal()">+新建项目</button>
+    <div style="display: grid;align-items: end;justify-content: end; flex-grow: 1;"><a (click)="goBack()"><< 返回上一级</a></div>
+</div>
+<div class="hispanel"> 
+    <form nz-form [nzLayout]="'inline'" style="margin-bottom: 30px;" [formGroup]="validateForm" (ngSubmit)="submitForm()">
+        <nz-form-item class="marginstyle">
+            <nz-form-label [nzNoColon]="true">项目名称</nz-form-label>   
+            <nz-form-control>
+              <input nz-input formControlName="proName" placeholder="请输入项目名称" />
+            </nz-form-control>
+        </nz-form-item>
+        <nz-form-item class="marginstyle"> 
+            <nz-form-label [nzNoColon]="true">创建人</nz-form-label>         
+            <nz-form-control>
+              <nz-select style="width: 200px;" nzShowSearch nzAllowClear nzPlaceHolder="请选择创建人" formControlName="creator">
+                <nz-option *ngFor="let user of users"  [nzLabel]="user.userName" [nzValue]="user.id"></nz-option> 
+              </nz-select> 
+            </nz-form-control>
+        </nz-form-item>
+        <nz-form-item> 
+            <nz-form-label [nzNoColon]="true">创建时间</nz-form-label>         
+            <nz-form-control>
+              <nz-range-picker
+                [nzShowTime]="{ nzFormat: 'HH:mm:ss' }"
+                nzFormat="yyyy-MM-dd HH:mm:ss"
+                [nzPlaceHolder]="['开始时间', '结束时间']"
+                ngModel 
+                nzAllowClear
+                formControlName="createTime" 
+              ></nz-range-picker>
+            </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+            <nz-form-control>
+                <button nz-button nzType="primary" style="margin-right: 30px;margin-left: 50px;">查询</button>
+                <button nz-button (click)="resetForm()">重置</button>
+            </nz-form-control>
+        </nz-form-item>
+    </form> 
+    <nz-table
+      #ajaxTable
+      nzBordered 
+      nzShowSizeChanger
+      [nzFrontPagination]="false"
+      [nzData]="listOfData"
+      [nzLoading]="loading"
+      [nzTotal]="total"
+      [(nzPageIndex)]="pageIndex"
+      [(nzPageSize)]="pageSize"
+      (nzPageIndexChange)="searchData()"
+      (nzPageSizeChange)="searchData(true)"
+    >
+      <thead>
+        <tr>
+          <th>序号</th>
+          <th>项目名称</th>
+          <th>项目描述</th>
+          <th>创建人</th>
+          <th>创建时间</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of ajaxTable.data;let i = index">
+          <td>{{data.projectId}}</td>
+          <td>{{ data.projectName }}</td>
+          <td>{{ data.projectDesc }}</td>
+          <td>{{ data.userName }}</td>
+          <td>{{ data.createTime }}</td>
+          <td>
+            <a class="actionBtn" (click)="toseeOrEdit(data,1)">查看</a> 
+            <a class="actionBtn" (click)="toseeOrEdit(data,2)">编辑</a>
+            <a class="actionBtn" (click)="showDeleteConfirm(data)">删除</a> 
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+</div>
+
+<!-- 新建项目模态框 -->
+<nz-modal
+  [(nzVisible)]="isVisible"
+  nzTitle="新建项目"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+  [nzOkLoading]="isOkLoading"
+>
+  <form nz-form [formGroup]="addProForm" (ngSubmit)="handleOk()"> 
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24" [nzNoColon]="true" style="text-align: left;">项目名称</nz-form-label>
+      <nz-form-control [nzSm]="20" [nzXs]="24" nzErrorTip="请输入项目名称!">
+      <input nz-input formControlName="addProName" placeholder='请输入项目名称' />
+      </nz-form-control>
+    </nz-form-item> 
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24" [nzNoColon]="true" style="text-align: left;">项目描述</nz-form-label>
+      <nz-form-control [nzSm]="20" [nzXs]="24" nzErrorTip="请输入项目描述">
+          <textarea formControlName="addProDec" nz-input rows="4" placeholder="请输入"></textarea>
+      </nz-form-control>
+    </nz-form-item> 
+  </form>
+</nz-modal>

@@ -1,0 +1,92 @@
+<app-header></app-header>
+<div class="mainContent">
+    <div class="project" style="padding: 0 30px;">
+        <div class="projectList">
+            <span class="projectTitle">项目名称：</span>
+            <input class="{{ifShowProNameBtn?'active':''}}" nz-input  [(ngModel)]="pname" disabled="{{ifShowProNameBtn?'false':'true'}}" />
+            <i *ngIf="!ifShowProNameBtn" style="cursor:pointer" nz-icon nzType="form" nzTheme="outline" (click)="changeProName()"></i>
+            <button (click)="carryProName('off')" *ngIf="ifShowProNameBtn" nz-button>取消</button>
+            <button (click)="carryProName('sure')" *ngIf="ifShowProNameBtn" nz-button nzType="primary">保存</button>
+        </div>
+        <div class="projectList">
+            <span class="projectTitle">项目描述：</span>
+            <input style="width: 200px;" class="{{ifShowProDesBtn?'active':''}}" nz-input  [(ngModel)]="pDec" disabled="{{ifShowProDesBtn?'false':'true'}}" />
+            <i *ngIf="!ifShowProDesBtn" style="cursor:pointer" nz-icon nzType="form" nzTheme="outline" (click)="changeProDes()"></i>
+            <button (click)="carryProDes('off')" *ngIf="ifShowProDesBtn" nz-button>取消</button>
+            <button (click)="carryProDes('sure')" *ngIf="ifShowProDesBtn" nz-button nzType="primary">保存</button>
+        </div>
+
+        <div style="float: right;font-size: 16px;">
+            <span nz-dropdown [nzDropdownMenu]="menu" nzPlacement="bottomCenter"> 
+                <i nz-icon nzType="profile" nzTheme="outline"></i>
+                项目
+            </span>
+            <nz-dropdown-menu #menu="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item (click)="openCreateModal()"><i nz-icon nzType="plus" nzTheme="outline"></i>新建项目</li>
+                <li nz-menu-item (click)="toHis()"><i nz-icon nzType="history" nzTheme="outline"></i>历史项目</li> 
+              </ul>
+            </nz-dropdown-menu>
+        </div>
+    </div>
+    <div class="progress">
+        <nz-steps>
+            <nz-step (click)="nextStep('enviroment#0')" nzTitle="" nzStatus="{{enviromentIcon?'':'finish'}}" [nzIcon]="enviroment"></nz-step>
+            <nz-step (click)="nextStep('load#0')" nzTitle="" nzStatus="{{loadIcon?'':'finish'}}" [nzIcon]="load"></nz-step>
+            <nz-step (click)="nextStep('energy#0')" nzTitle="" nzStatus="{{energyIcon?'':'finish'}}" [nzIcon]="energy"></nz-step>
+            <nz-step (click)="nextStep('device#0')" nzTitle="" nzStatus="{{deviceIcon?'':'finish'}}" [nzIcon]="device"></nz-step>
+            <nz-step (click)="nextStep('result#0')" nzTitle="" nzStatus="{{resultIcon?'':'finish'}}" [nzIcon]="result"></nz-step>
+
+            <ng-template #enviroment>
+                <img *ngIf="enviromentIcon" src="../../assets/pics/enviroment.png" alt="">
+                <img *ngIf="!enviromentIcon" src="../../assets/pics/enviroment-active.png" alt="">
+                <span class="{{enviromentIcon?'':'active'}}">环境数据</span>
+            </ng-template>
+            <ng-template #load>
+                <img *ngIf="loadIcon" src="../../assets/pics/load.png" alt="">
+                <img *ngIf="!loadIcon" src="../../assets/pics/load-active.png" alt="">
+                <span class="{{loadIcon?'':'active'}}">负荷需求</span>
+            </ng-template>
+            <ng-template #energy>
+                <img *ngIf="energyIcon" src="../../assets/pics/energy.png" alt="">
+                <img *ngIf="!energyIcon" src="../../assets/pics/energy-active.png" alt="">
+                <span class="{{energyIcon?'':'active'}}">能源市场</span>
+            </ng-template>
+            <ng-template #device>
+                <img *ngIf="deviceIcon" src="../../assets/pics/device.png" alt="">
+                <img *ngIf="!deviceIcon" src="../../assets/pics/device-active.png" alt="">
+                <span class="{{deviceIcon?'':'active'}}">设备选择</span>
+            </ng-template>
+            <ng-template #result>
+                <img *ngIf="resultIcon" src="../../assets/pics/result.png" alt="">
+                <img *ngIf="!resultIcon" src="../../assets/pics/result-active.png" alt="">
+                <span class="{{resultIcon?'':'active'}}">优化</span>
+            </ng-template>
+        </nz-steps>
+    </div>
+    <router-outlet></router-outlet>
+</div>
+
+<!-- 新建项目模态框 -->
+<nz-modal
+  [(nzVisible)]="isVisible"
+  nzTitle="新建项目"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+  [nzOkLoading]="isOkLoading"
+>
+  <form nz-form [formGroup]="addProForm" (ngSubmit)="handleOk()"> 
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24" [nzNoColon]="true" style="text-align: left;">项目名称</nz-form-label>
+      <nz-form-control [nzSm]="20" [nzXs]="24" nzErrorTip="请输入项目名称!">
+      <input nz-input formControlName="addProName" placeholder='请输入项目名称' />
+      </nz-form-control>
+    </nz-form-item> 
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24" [nzNoColon]="true" style="text-align: left;">项目描述</nz-form-label>
+      <nz-form-control [nzSm]="20" [nzXs]="24" nzErrorTip="请输入项目描述">
+          <textarea formControlName="addProDec" nz-input rows="4" placeholder="请输入"></textarea>
+      </nz-form-control>
+    </nz-form-item> 
+  </form>
+</nz-modal>

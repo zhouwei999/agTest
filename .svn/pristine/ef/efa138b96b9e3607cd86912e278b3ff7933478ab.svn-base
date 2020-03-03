@@ -1,0 +1,63 @@
+.mainContent{
+    padding: 30px 35px 15px 45px;
+}
+.project{
+    .projectList{
+        display: inline-block;
+        margin-right: 140px;
+    }
+    .projectTitle{
+        font-weight: bold;
+        font-size: 20px;
+    }
+    // .projectName{
+    //     font-size: 16px;
+    //     margin-right: 10px;
+    // }
+}
+.progress{
+    width: 100%;
+    background: #fff;
+    margin-top: 23px;
+    line-height: 100px;
+    padding: 32px 160px 32px 100px;
+    margin-bottom: 10px;
+}
+nz-step{
+    cursor: pointer;
+}
+.progress img{
+    float: left;
+    margin-top: 5px;
+}
+.progress span.active{
+    font-size: 18px;
+    float: left;
+    margin-left: 10px;
+    color: #02B980;
+}
+.progress span{
+    font-size: 18px;
+    float: left;
+    margin-left: 10px;
+    color: #999999;
+}
+.projectList button{
+    padding: 0 5px;
+    height: 20px;
+    line-height: 20px;
+    margin-right: 8px;
+    font-size: 12px;
+}
+.projectList input{
+    width: 100px;
+    display: inline-block;
+    color: #666;
+    margin-right: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+}
+.projectList input.active{
+    border: 1px solid #ccc;
+}

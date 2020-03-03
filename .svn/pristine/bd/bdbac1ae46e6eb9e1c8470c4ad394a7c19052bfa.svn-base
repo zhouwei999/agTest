@@ -1,0 +1,1123 @@
+
+
+<div>
+    <div class="panelResult">
+      <div class="title-two">优化目标</div>
+      <div class="panelChild" style="margin-top: 20px;margin-bottom: 30px;">
+        <form nz-form [nzLayout]="'inline'" [formGroup]="resultForm">  
+          <nz-form-item nzFlex>
+              <nz-form-control>
+                <nz-radio-group formControlName="optimizerGoal" [(ngModel)]="optimizerGoal">
+                  <label nz-radio nzValue="1" class="marginStyle">经济性最优</label>
+                  <label nz-radio nzValue="2" class="marginStyle">环保性指标最优</label>
+                  <label nz-radio nzValue="3" class="marginStyle">多目标最优</label> 
+                </nz-radio-group>
+              </nz-form-control>
+              <nz-form-label [nzNoColon]="true">经济性权重(%)</nz-form-label>   
+              <nz-form-control nzErrorTip="请输入经济性权重！" class="marginStyle">
+                  <nz-input-number [nzMin]="0" nz-input formControlName="economicWeight" [nzDisabled]="optimizerGoal!=='3'"></nz-input-number>
+              </nz-form-control>
+              <nz-form-label [nzNoColon]="true">环保性权重(%)</nz-form-label>   
+              <nz-form-control nzErrorTip="请输入环保性权重！">
+                  <nz-input-number [nzMin]="0" nz-input formControlName="environmentalProtectionWeight" [nzDisabled]="optimizerGoal!=='3'"></nz-input-number>
+              </nz-form-control>
+          </nz-form-item>  
+        </form> 
+        <button nz-button nzType="primary" (click)="doCalculate()">开始计算</button>
+      </div>
+    </div>  
+    <div id="result" style="min-height: 400px;background-color: #ffffff;">
+      <div [ngClass]="{'panelChild':flagRes,'panelChildnone':!flagRes}" style="padding: 15px 70px;background-color: #f2f2f2;">
+          <span class="title-two">优化结果展示</span>
+          <button nz-button nzType="primary" (click)="toPDF()">导出为PDF</button>
+      </div>
+      <div class="panel" id="resultPDF">
+        <div style="display: flex;padding-left: 30px;padding-right: 30px;margin-bottom: 35px;align-items: center;" [ngStyle]="{'justify-content':flagLoad&&!flagRes?'center':'space-between'}">
+          <div class="chartBox" [ngStyle]="{'display':flagRes?'block':'none'}">
+            <div class="chartBoxtitle">设备容量</div>
+            <!-- 图形 -->
+            <div style="padding: 15px;"> 
+              <div id="chart" style="width: 100%;height:250px;"></div>
+            </div> 
+          </div> 
+          <div [ngStyle]="{'display':flagLoad?'block':'none','text-align':'center'}"><div><i nz-icon nzType="loading" nzTheme="outline"></i></div>
+          计算中...</div> 
+          <div class="chartBox" [ngStyle]="{'display':flagRes?'block':'none'}">
+            <div class="chartBoxtitle">燃料量占比</div>
+            <div style="padding:15px;display: flex;">  
+              <div id="chartPie" style="width: 100%;height:250px;"></div>
+              <div>
+
+              </div>
+            </div> 
+          </div>
+        </div>  
+        <div class="tableBox" [ngStyle]="{'display':flagRes?'block':'none'}">
+          <nz-table
+            #ajaxTable
+            nzBordered 
+            nzShowSizeChanger
+            [nzFrontPagination]="false"
+            [nzData]="listOfData"
+            [nzLoading]="loading" 
+          >
+            <thead>
+              <tr>
+                <th [nzAlign]='alignType'>序号</th>
+                <th [nzAlign]='alignType'>成本来源</th>
+                <th [nzAlign]='alignType'>成本(万元/年)</th>
+                <th [nzAlign]='alignType'>收入来源</th>
+                <th [nzAlign]='alignType'>收入(万元/年)</th>
+                <th [nzAlign]='alignType'>收益(万元/年)</th>
+                <th [nzAlign]='alignType'>碳排放(吨/年)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let data of ajaxTable.data;let i = index">
+                <td [nzAlign]='alignType'><span *ngIf="i !== 5">{{i+1}}</span><span *ngIf="i === 5">合计</span></td>
+                <td [nzAlign]='alignType' [attr.colspan]="i === 5 ? 2 : 1">{{ data.costFrom }}</td>
+                <td [nzAlign]='alignType' *ngIf="i !== 5">{{ data.cost }}</td>
+                <td [nzAlign]='alignType' [attr.colspan]="i === 5 ? 2 : 1">{{ data.incomeFrom }}</td>
+                <td [nzAlign]='alignType' *ngIf="i !== 5">{{ data.income }}</td>
+                <td [nzAlign]='alignType' [attr.rowspan]="i === 0 ? 6 : 1" *ngIf="i === 0">{{ data.profit }}</td>
+                <td [nzAlign]='alignType' [attr.rowspan]="i === 0 ? 6 : 1" *ngIf="i === 0">{{ data.carbonOut }}</td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
+      </div> 
+    </div>
+    <div class="stepBtns">
+        <button nz-button style="margin-right: 15px;" (click)="previousStep()"><i nz-icon nzType="arrow-left" nzTheme="outline"></i>上一步</button>
+    </div>
+</div>
+
+
+
+<div id="finalPDF" style="position: fixed;margin-bottom: 20px;">
+  <div id="finalPDF1">
+    <div class="title-two">环境数据</div> 
+    <div class="title-three">夏季：</div>
+    <div id="summerRadChart" style="width: 100%;height: 300px;"></div>
+    <div style="display: flex;justify-content: space-between;">
+      <div style="width: 49%;">
+        日时风速 (m/s)
+        <nz-table #editRowTable7 [nzShowPagination]='false' nzBordered [nzData]="listOfDataWindSummerPDF" style="width: 100%;">
+          <thead>
+            <tr class="pdfTable">
+              <th>时间</th>
+              <th>需求值(MW)</th>
+              <th>时间</th>
+              <th>需求值(MW)</th>
+              <th>时间</th>
+              <th>需求值(MW)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let data of editRowTable7.data" class="editable-row">
+              <td>{{ data.time1 }}</td>
+              <td>
+                <div class="editable-cell" *ngIf="editId !== data.id; else editTpl">
+                  <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                    {{ data.needValue1 }}
+                  </div>
+                </div>
+                <ng-template #editTpl>
+                  <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue1"></nz-input-number>
+                </ng-template>
+              </td>
+              <td>{{ data.time2 }}</td>
+              <td>
+                  <div class="editable-cell" *ngIf="editId !== data.id; else editTp2">
+                    <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                      {{ data.needValue2 }}
+                    </div>
+                  </div>
+                  <ng-template #editTp2>
+                    <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue2"></nz-input-number>
+                  </ng-template>
+                </td> 
+              <td>{{ data.time3 }}</td>
+              <td>
+                  <div class="editable-cell" *ngIf="editId !== data.id; else editTp3">
+                    <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                      {{ data.needValue3 }}
+                    </div>
+                  </div>
+                  <ng-template #editTp3>
+                    <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue3"></nz-input-number>
+                  </ng-template>
+                </td>
+            </tr>
+          </tbody>
+        </nz-table> 
+      </div>
+      <div style="width: 49%;">
+        日辐射强度 (kw/㎡)
+        <nz-table #editRowTable8 [nzShowPagination]='false' nzBordered [nzData]="listOfDataSunSummerPDF" style="width: 100%;">
+          <thead>
+            <tr class="pdfTable">
+              <th>时间</th>
+              <th>需求值(MW)</th>
+              <th>时间</th>
+              <th>需求值(MW)</th>
+              <th>时间</th>
+              <th>需求值(MW)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let data of editRowTable8.data" class="editable-row">
+              <td>{{ data.time1 }}</td>
+              <td>
+                <div class="editable-cell" *ngIf="editId !== data.id; else editTpl">
+                  <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                    {{ data.needValue1 }}
+                  </div>
+                </div>
+                <ng-template #editTpl>
+                  <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue1"></nz-input-number>
+                </ng-template>
+              </td>
+              <td>{{ data.time2 }}</td>
+              <td>
+                  <div class="editable-cell" *ngIf="editId !== data.id; else editTp2">
+                    <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                      {{ data.needValue2 }}
+                    </div>
+                  </div>
+                  <ng-template #editTp2>
+                    <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue2"></nz-input-number>
+                  </ng-template>
+                </td> 
+              <td>{{ data.time3 }}</td>
+              <td>
+                  <div class="editable-cell" *ngIf="editId !== data.id; else editTp3">
+                    <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                      {{ data.needValue3 }}
+                    </div>
+                  </div>
+                  <ng-template #editTp3>
+                    <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue3"></nz-input-number>
+                  </ng-template>
+                </td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </div>
+    </div>
+    <div class="title-three" style="margin-top: 10px;">冬季：</div>
+    <div id="winterRadChart" style="width: 100%;height: 300px;"></div>
+    <div style="display: flex;justify-content: space-between;">
+      <div style="width: 49%;">
+        日时风速 (m/s)
+        <nz-table #editRowTable6 [nzShowPagination]='false' nzBordered [nzData]="listOfDataWindWinterPDF" style="width: 100%;">
+          <thead>
+            <tr class="pdfTable">
+              <th>时间</th>
+              <th>需求值(MW)</th>
+              <th>时间</th>
+              <th>需求值(MW)</th>
+              <th>时间</th>
+              <th>需求值(MW)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let data of editRowTable6.data" class="editable-row">
+              <td>{{ data.time1 }}</td>
+              <td>
+                <div class="editable-cell" *ngIf="editId !== data.id; else editTpl">
+                  <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                    {{ data.needValue1 }}
+                  </div>
+                </div>
+                <ng-template #editTpl>
+                  <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue1"></nz-input-number>
+                </ng-template>
+              </td>
+              <td>{{ data.time2 }}</td>
+              <td>
+                  <div class="editable-cell" *ngIf="editId !== data.id; else editTp2">
+                    <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                      {{ data.needValue2 }}
+                    </div>
+                  </div>
+                  <ng-template #editTp2>
+                    <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue2"></nz-input-number>
+                  </ng-template>
+                </td> 
+              <td>{{ data.time3 }}</td>
+              <td>
+                  <div class="editable-cell" *ngIf="editId !== data.id; else editTp3">
+                    <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                      {{ data.needValue3 }}
+                    </div>
+                  </div>
+                  <ng-template #editTp3>
+                    <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue3"></nz-input-number>
+                  </ng-template>
+                </td>
+            </tr>
+          </tbody>
+        </nz-table> 
+      </div>
+      <div style="width: 49%;">
+        日辐射强度 (kw/㎡)
+        <nz-table #editRowTable9 [nzShowPagination]='false' nzBordered [nzData]="listOfDataSunWinterPDF" style="width: 100%;">
+          <thead>
+            <tr class="pdfTable">
+              <th>时间</th>
+              <th>需求值(MW)</th>
+              <th>时间</th>
+              <th>需求值(MW)</th>
+              <th>时间</th>
+              <th>需求值(MW)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let data of editRowTable9.data" class="editable-row">
+              <td>{{ data.time1 }}</td>
+              <td>
+                <div class="editable-cell" *ngIf="editId !== data.id; else editTpl">
+                  <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                    {{ data.needValue1 }}
+                  </div>
+                </div>
+                <ng-template #editTpl>
+                  <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue1"></nz-input-number>
+                </ng-template>
+              </td>
+              <td>{{ data.time2 }}</td>
+              <td>
+                  <div class="editable-cell" *ngIf="editId !== data.id; else editTp2">
+                    <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                      {{ data.needValue2 }}
+                    </div>
+                  </div>
+                  <ng-template #editTp2>
+                    <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue2"></nz-input-number>
+                  </ng-template>
+                </td> 
+              <td>{{ data.time3 }}</td>
+              <td>
+                  <div class="editable-cell" *ngIf="editId !== data.id; else editTp3">
+                    <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                      {{ data.needValue3 }}
+                    </div>
+                  </div>
+                  <ng-template #editTp3>
+                    <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue3"></nz-input-number>
+                  </ng-template>
+                </td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </div>
+    </div>
+  </div>
+ 
+  <div id="finalPDF2">
+    <div class="title-three" style="align-items: center;display: grid;margin-right: 40px;">负荷现状</div>
+    <form nz-form [nzLayout]="'inline'" [formGroup]="nowParamFormPDF">
+        <nz-form-item class="inputMargin">
+            <nz-form-label [nzNoColon]="true">电供给 (MW)</nz-form-label>   
+            <nz-form-control>
+                <nz-input-number nz-input formControlName="electricity"></nz-input-number>
+            </nz-form-control>
+        </nz-form-item>
+        <nz-form-item class="inputMargin">
+            <nz-form-label [nzNoColon]="true">蒸汽供给(MW)</nz-form-label>         
+            <nz-form-control>
+                <nz-input-number [nzMin]=0 [nzPrecision]="2" nz-input formControlName="steam"></nz-input-number>
+            </nz-form-control>
+        </nz-form-item>
+        <nz-form-item class="inputMargin"> 
+            <nz-form-label [nzNoColon]="true">供暖供给(MW)</nz-form-label>         
+            <nz-form-control>
+                <nz-input-number [nzMin]=0 nz-input formControlName="heat"></nz-input-number>
+            </nz-form-control>
+        </nz-form-item>
+        <nz-form-item class="inputMargin"> 
+            <nz-form-label [nzNoColon]="true">热水供给(MW)</nz-form-label>         
+            <nz-form-control>
+                <nz-input-number [nzMin]=0 nz-input formControlName="hotwater"></nz-input-number>
+            </nz-form-control>
+        </nz-form-item>
+        <nz-form-item class="inputMargin"> 
+            <nz-form-label [nzNoColon]="true">冷供给(MW)</nz-form-label>         
+            <nz-form-control>
+                <nz-input-number [nzMin]=0 nz-input formControlName="cold"></nz-input-number>
+            </nz-form-control>
+        </nz-form-item>
+    </form> 
+    <div style="display: flex;margin-bottom: 20px;">
+      <div class="title-three" style="align-items: center;display: grid;margin-right: 40px;">负荷需求</div> 
+    </div>
+    日电需求:
+    <div style="padding: 15px 0;display: flex;justify-content: space-between;">
+      <nz-table #editRowTable [nzShowPagination]='false' nzBordered [nzData]="listOfDataPDF" style="width: 48%;">
+        <thead>
+          <tr class="pdfTable">
+            <th>时间</th>
+            <th>需求值(MW)</th>
+            <th>时间</th>
+            <th>需求值(MW)</th>
+            <th>时间</th>
+            <th>需求值(MW)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of editRowTable.data" class="editable-row">
+            <td>{{ data.time1 }}</td>
+            <td>
+              <div class="editable-cell">
+                <div class="editable-cell-value-wrap">
+                  {{ data.needValue1 }}
+                </div>
+              </div> 
+            </td>
+            <td>{{ data.time2 }}</td>
+            <td>
+                <div class="editable-cell">
+                  <div class="editable-cell-value-wrap">
+                    {{ data.needValue2 }}
+                  </div>
+                </div> 
+              </td> 
+            <td>{{ data.time3 }}</td>
+            <td>
+                <div class="editable-cell">
+                  <div class="editable-cell-value-wrap">
+                    {{ data.needValue3 }}
+                  </div>
+                </div> 
+              </td>
+          </tr>
+        </tbody>
+      </nz-table>
+      <div style="width: 48%;padding:15px">
+        <span style="margin-right: 10px;">单位：MW</span>
+        <i nz-icon nzType="sync" style="cursor: pointer;" nzTheme="outline"></i>
+        <div id="electricitychart" style="width: 100%;height:90%;"></div>
+      </div> 
+    </div>
+    日蒸汽需求:
+    <div style="padding: 15px 0;display: flex;justify-content: space-between;">
+      <nz-table #editRowTable2 [nzShowPagination]='false' nzBordered [nzData]="listOfDataPDF2" style="width: 48%;">
+        <thead>
+          <tr class="pdfTable">
+            <th>时间</th>
+            <th>需求值(MW)</th>
+            <th>时间</th>
+            <th>需求值(MW)</th>
+            <th>时间</th>
+            <th>需求值(MW)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of editRowTable2.data" class="editable-row">
+            <td>{{ data.time1 }}</td>
+            <td>
+              <div class="editable-cell">
+                <div class="editable-cell-value-wrap">
+                  {{ data.needValue1 }}
+                </div>
+              </div> 
+            </td>
+            <td>{{ data.time2 }}</td>
+            <td>
+                <div class="editable-cell">
+                  <div class="editable-cell-value-wrap">
+                    {{ data.needValue2 }}
+                  </div>
+                </div> 
+              </td> 
+            <td>{{ data.time3 }}</td>
+            <td>
+                <div class="editable-cell">
+                  <div class="editable-cell-value-wrap">
+                    {{ data.needValue3 }}
+                  </div>
+                </div> 
+              </td>
+          </tr>
+        </tbody>
+      </nz-table>
+      <div style="width: 48%;padding:15px">
+        <span style="margin-right: 10px;">单位：MW</span>
+        <i nz-icon nzType="sync" style="cursor: pointer;" nzTheme="outline"></i>
+        <div id="steamchart" style="width: 100%;height:90%;"></div>
+      </div> 
+    </div>
+    日供暖需求:
+    <div style="padding: 15px 0;display: flex;justify-content: space-between;">
+      <nz-table #editRowTable3 [nzShowPagination]='false' nzBordered [nzData]="listOfDataPDF3" style="width: 48%;">
+        <thead>
+          <tr class="pdfTable">
+            <th>时间</th>
+            <th>需求值(MW)</th>
+            <th>时间</th>
+            <th>需求值(MW)</th>
+            <th>时间</th>
+            <th>需求值(MW)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of editRowTable3.data" class="editable-row">
+            <td>{{ data.time1 }}</td>
+            <td>
+              <div class="editable-cell">
+                <div class="editable-cell-value-wrap">
+                  {{ data.needValue1 }}
+                </div>
+              </div> 
+            </td>
+            <td>{{ data.time2 }}</td>
+            <td>
+                <div class="editable-cell">
+                  <div class="editable-cell-value-wrap">
+                    {{ data.needValue2 }}
+                  </div>
+                </div> 
+              </td> 
+            <td>{{ data.time3 }}</td>
+            <td>
+                <div class="editable-cell">
+                  <div class="editable-cell-value-wrap">
+                    {{ data.needValue3 }}
+                  </div>
+                </div> 
+              </td>
+          </tr>
+        </tbody>
+      </nz-table>
+      <div style="width: 48%;padding:15px">
+        <span style="margin-right: 10px;">单位：MW</span>
+        <i nz-icon nzType="sync" style="cursor: pointer;" nzTheme="outline"></i>
+        <div id="heatchart" style="width: 100%;height:90%;"></div>
+      </div> 
+    </div>
+    日热水需求:
+    <div style="padding: 15px 0;display: flex;justify-content: space-between;">
+      <nz-table #editRowTable4 [nzShowPagination]='false' nzBordered [nzData]="listOfDataPDF4" style="width: 48%;">
+        <thead>
+          <tr class="pdfTable">
+            <th>时间</th>
+            <th>需求值(MW)</th>
+            <th>时间</th>
+            <th>需求值(MW)</th>
+            <th>时间</th>
+            <th>需求值(MW)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of editRowTable4.data" class="editable-row">
+            <td>{{ data.time1 }}</td>
+            <td>
+              <div class="editable-cell">
+                <div class="editable-cell-value-wrap">
+                  {{ data.needValue1 }}
+                </div>
+              </div> 
+            </td>
+            <td>{{ data.time2 }}</td>
+            <td>
+                <div class="editable-cell">
+                  <div class="editable-cell-value-wrap">
+                    {{ data.needValue2 }}
+                  </div>
+                </div> 
+              </td> 
+            <td>{{ data.time3 }}</td>
+            <td>
+                <div class="editable-cell">
+                  <div class="editable-cell-value-wrap">
+                    {{ data.needValue3 }}
+                  </div>
+                </div> 
+              </td>
+          </tr>
+        </tbody>
+      </nz-table>
+      <div style="width: 48%;padding:15px">
+        <span style="margin-right: 10px;">单位：MW</span>
+        <i nz-icon nzType="sync" style="cursor: pointer;" nzTheme="outline"></i>
+        <div id="hotwaterchart" style="width: 100%;height:90%;"></div>
+      </div> 
+    </div>
+    日热水需求:
+    <div style="padding: 15px 0;display: flex;justify-content: space-between;">
+      <nz-table #editRowTable5 [nzShowPagination]='false' nzBordered [nzData]="listOfDataPDF5" style="width: 48%;">
+        <thead>
+          <tr class="pdfTable">
+            <th>时间</th>
+            <th>需求值(MW)</th>
+            <th>时间</th>
+            <th>需求值(MW)</th>
+            <th>时间</th>
+            <th>需求值(MW)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of editRowTable5.data" class="editable-row">
+            <td>{{ data.time1 }}</td>
+            <td>
+              <div class="editable-cell">
+                <div class="editable-cell-value-wrap">
+                  {{ data.needValue1 }}
+                </div>
+              </div> 
+            </td>
+            <td>{{ data.time2 }}</td>
+            <td>
+                <div class="editable-cell">
+                  <div class="editable-cell-value-wrap">
+                    {{ data.needValue2 }}
+                  </div>
+                </div> 
+              </td> 
+            <td>{{ data.time3 }}</td>
+            <td>
+                <div class="editable-cell">
+                  <div class="editable-cell-value-wrap">
+                    {{ data.needValue3 }}
+                  </div>
+                </div> 
+              </td>
+          </tr>
+        </tbody>
+      </nz-table>
+      <div style="width: 48%;padding:15px">
+        <span style="margin-right: 10px;">单位：MW</span>
+        <i nz-icon nzType="sync" style="cursor: pointer;" nzTheme="outline"></i>
+        <div id="coldchart" style="width: 100%;height:90%;"></div>
+      </div> 
+    </div>
+  </div>
+
+  <div id="finalPDF3">
+    <div class="title-two title3">
+      能源市场
+    </div> 
+    <div style="border:1px solid #ccc">
+      <div class="titleBox">
+          <span class="cardTitle">电价</span> 
+      </div>
+      <div class="contentBox" style="display: flex;">
+          <div style="width:50%;margin-left: 15px;margin-top: 40px;">
+              <form nz-form  [formGroup]="energyParamFormPDF">
+                  <div style="display: flex;">
+                      <nz-form-item nzFlex class="marginStyle"> 
+                          <nz-form-label [nzNoColon]="true"><span class="labelTitle">购电价格</span>峰价(元/kWh)</nz-form-label>   
+                          <nz-form-control>
+                              <nz-input-number nz-input formControlName="peak" class="inputWidth"></nz-input-number>
+                          </nz-form-control>
+                      </nz-form-item>
+                      <nz-form-item nzFlex class="marginStyle"> 
+                          <nz-form-label [nzNoColon]="true">平价(元/kWh)</nz-form-label>         
+                          <nz-form-control>
+                              <nz-input-number [nzMin]="0" nz-input formControlName="shoulder" class="inputWidth"></nz-input-number>
+                          </nz-form-control>
+                      </nz-form-item>
+                      <nz-form-item nzFlex> 
+                          <nz-form-label [nzNoColon]="true">谷价(元/kWh)</nz-form-label>         
+                          <nz-form-control>
+                              <nz-input-number [nzMin]="0" nz-input formControlName="off-peak" class="inputWidth"></nz-input-number>
+                          </nz-form-control>
+                      </nz-form-item>
+                  </div>
+                  <div style="display: flex;">
+                      <nz-form-item nzFlex> 
+                          <nz-form-label [nzNoColon]="true"><span class="labelTitle">售电价格</span>售价(元/kWh)</nz-form-label>         
+                          <nz-form-control>
+                              <nz-input-number [nzMin]=0 nz-input formControlName="sale_elec" class="inputWidth"></nz-input-number>
+                          </nz-form-control>
+                      </nz-form-item> 
+                  </div>
+              </form> 
+          </div> 
+          <!-- 图形 -->
+          <div style="width: 50%;padding:15px">
+              <span style="margin-right: 10px;">单位：元/kwh</span>
+              <i nz-icon nzType="sync" style="cursor: pointer;" nzTheme="outline"></i>
+              <div id="chart2PDF" style="width: 100%;height:160px;"></div>
+          </div>  
+      </div>
+    </div>
+    <div style="display: flex;justify-content: space-between;margin-top: 15px;">
+      <div style="border:1px solid #ccc;width:49%">
+          <div class="titleBox">
+              <span class="cardTitle">冷热价</span> 
+          </div>
+          <form nz-form [formGroup]="energyParamForm2PDF" style="margin: auto;">
+              <div style="display: flex;justify-content: space-around;margin-top: 25px;">
+                  <nz-form-item nzFlex> 
+                      <nz-form-label [nzNoColon]="true">冷价(元/GJ)</nz-form-label>   
+                      <nz-form-control>
+                          <nz-input-number [nzMin]=0 nz-input formControlName="cold" class="inputWidth2"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex> 
+                      <nz-form-label [nzNoColon]="true">热水价(元/GJ)</nz-form-label>         
+                      <nz-form-control>
+                          <nz-input-number [nzMin]=0 nz-input formControlName="hotwater" class="inputWidth2"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+              </div>
+              <div style="display: flex;justify-content: space-around;">
+                  <nz-form-item nzFlex> 
+                      <nz-form-label [nzNoColon]="true">蒸汽价(元/GJ)</nz-form-label>         
+                      <nz-form-control>
+                          <nz-input-number [nzMin]=0 nz-input formControlName="stream" class="inputWidth2"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex> 
+                      <nz-form-label [nzNoColon]="true">供暖价(元/GJ)</nz-form-label>         
+                      <nz-form-control>
+                          <nz-input-number [nzMin]=0 nz-input formControlName="heat" class="inputWidth2"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+              </div> 
+          </form> 
+      </div>
+      <div style="border:1px solid #ccc;width:49%">
+          <div class="titleBox">
+              <span class="cardTitle">电价</span> 
+          </div>
+          <form nz-form [formGroup]="energyParamForm3PDF" style="margin: auto;">
+              <div style="display: flex;justify-content: space-around;margin-top: 25px;">
+                  <nz-form-item nzFlex> 
+                      <nz-form-label [nzNoColon]="true">煤(元/t)</nz-form-label>   
+                      <nz-form-control>
+                          <nz-input-number [nzMin]=0 nz-input formControlName="coal" class="inputWidth2"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex> 
+                      <nz-form-label [nzNoColon]="true">天然气(元/m³)</nz-form-label>         
+                      <nz-form-control>
+                          <nz-input-number [nzMin]=0 nz-input formControlName="gas" class="inputWidth2"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+              </div>
+              <div style="display: flex;justify-content: space-around;">
+                  <nz-form-item nzFlex> 
+                      <nz-form-label [nzNoColon]="true">生物质(元/t)</nz-form-label>         
+                      <nz-form-control>
+                          <nz-input-number [nzMin]=0 nz-input formControlName="biofuel" class="inputWidth2"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex> 
+                      <nz-form-label [nzNoColon]="true">燃油(元/t)</nz-form-label>         
+                      <nz-form-control>
+                          <nz-input-number [nzMin]=0 nz-input formControlName="oil" class="inputWidth2"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item> 
+              </div>
+          </form> 
+      </div>
+    </div>
+  </div>
+
+  <div id="finalPDF4">
+    <div style="display: flex;align-items: center;">
+      <div class="title-two">参与设备及参数</div>
+      <div class="tipTitle">提示：效率参数请输入0~1的小数。</div>
+    </div>
+    <form nz-form [formGroup]="deviceParamFormPDF">
+      <div style="display: flex;justify-content: space-between;margin-top: 15px;"> 
+        <div style="border: 1px solid #ccc;width:49%;">
+          <div style="margin-top: 45px; margin-left: 50px;">
+              <div nz-row nzType="flex" nzAlign="middle">
+                  <nz-form-item class="widthStyle"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="cchpisCheck" [(ngModel)]="cchpisCheck"><span class="labelTitle">冷热电三联供(CCHP)</span></label>                  
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex class="widthStyle2">
+                      <nz-form-label [nzNoColon]="true">热效率</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入热效率！">
+                          <nz-input-number nz-input formControlName="cchpparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item> 
+                  <nz-form-item nzFlex class="widthStyle2"> 
+                      <nz-form-label [nzNoColon]="true">发电效率</nz-form-label>         
+                      <nz-form-control nzErrorTip="请输入发电效率！">
+                          <nz-input-number nz-input formControlName="cchpparam2"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item> 
+                  <nz-form-item nzFlex class="widthStyle2"> 
+                      <nz-form-label [nzNoColon]="true">冷效率</nz-form-label>         
+                      <nz-form-control nzErrorTip="请输入冷效率！">
+                          <nz-input-number nz-input formControlName="cchpparam3"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item> 
+              </div>  
+              <div nz-row nzType="flex" nzAlign="middle">
+                  <nz-form-item class="widthStyle"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="chpisCheck" [(ngModel)]="chpisCheck"><span class="labelTitle">热电联产(CHP)</span></label>
+                      </nz-form-control>
+                  </nz-form-item> 
+                  <nz-form-item nzFlex class="widthStyle3">
+                      <nz-form-label [nzNoColon]="true">热效率</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入热效率！">
+                          <nz-input-number nz-input formControlName="chpparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex class="widthStyle3">
+                      <nz-form-label [nzNoColon]="true">发电效率</nz-form-label>         
+                      <nz-form-control nzErrorTip="请输入发电效率！">
+                          <nz-input-number nz-input formControlName="chpparam2"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>  
+              </div>
+              <div nz-row nzType="flex" nzAlign="middle">
+                  <nz-form-item class="widthStyle"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="isCheckBiomass" [(ngModel)]="isCheckBiomass"><span class="labelTitle">生物质锅炉</span></label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item class="widthStyle4"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="bio_boiler_steamisCheck" [(ngModel)]="bio_boiler_steamisCheck">蒸汽</label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex class="widthStyle5">
+                      <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入效率！">
+                          <nz-input-number nz-input formControlName="bio_boiler_steamparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item class="widthStyle4"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="bio_boiler_heatisCheck" [(ngModel)]="bio_boiler_heatisCheck">热水</label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex class="widthStyle5">
+                      <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入效率！">
+                          <nz-input-number nz-input formControlName="bio_boiler_heatparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+              </div>
+              <div nz-row nzType="flex" nzAlign="middle">
+                  <nz-form-item class="widthStyle"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="isCheckElectric" [(ngModel)]="isCheckElectric"><span class="labelTitle">电锅炉</span></label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item class="widthStyle4"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="elec_boiler_steamisCheck" [(ngModel)]="elec_boiler_steamisCheck">蒸汽</label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex class="widthStyle5">
+                      <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入效率！">
+                          <nz-input-number nz-input formControlName="elec_boiler_steamparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item class="widthStyle4"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="elec_boiler_heatisCheck" [(ngModel)]="elec_boiler_heatisCheck">热水</label>
+                      </nz-form-control>
+                  </nz-form-item> 
+                  <nz-form-item nzFlex class="widthStyle5">
+                      <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入效率！">
+                          <nz-input-number nz-input formControlName="elec_boiler_heatparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+              </div>
+              <div nz-row nzType="flex" nzAlign="middle">
+                  <nz-form-item class="widthStyle"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="isCheckCoal" [(ngModel)]="isCheckCoal"><span class="labelTitle">燃煤锅炉</span></label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item class="widthStyle4"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="coal_boiler_steamisCheck" [(ngModel)]="coal_boiler_steamisCheck">蒸汽</label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex class="widthStyle5">
+                      <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入效率！">
+                          <nz-input-number [nzMin]=0 [nzMax]=1 nz-input formControlName="coal_boiler_steamparam1" [nzDisabled]="!coal_boiler_steamisCheck"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item class="widthStyle4"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="coal_boiler_heatisCheck" [(ngModel)]="coal_boiler_heatisCheck">热水</label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex class="widthStyle5">
+                      <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入效率！">
+                          <nz-input-number nz-input formControlName="coal_boiler_heatparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+              </div>
+              <div nz-row nzType="flex" nzAlign="middle">
+                  <nz-form-item class="widthStyle"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="isCheckGas" [(ngModel)]="isCheckGas"><span class="labelTitle">燃气锅炉</span></label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item class="widthStyle4"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox [(ngModel)]="gas_boiler_steamisCheck" formControlName="gas_boiler_steamisCheck">蒸汽</label>
+                      </nz-form-control>
+                  </nz-form-item> 
+                  <nz-form-item nzFlex class="widthStyle5"> 
+                      <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入效率！">
+                          <nz-input-number  nz-input formControlName="gas_boiler_steamparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item class="widthStyle4"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="gas_boiler_heatisCheck" [(ngModel)]="gas_boiler_heatisCheck">热水</label>
+                      </nz-form-control>
+                  </nz-form-item> 
+                  <nz-form-item nzFlex class="widthStyle5">
+                      <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入效率！">
+                          <nz-input-number nz-input formControlName="gas_boiler_heatparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+              </div>
+              <div nz-row nzType="flex" nzAlign="middle">
+                  <nz-form-item class="widthStyle"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="heat_exchangerisCheck" [(ngModel)]="heat_exchangerisCheck"><span class="labelTitle">换热站</span></label> 
+                      </nz-form-control>
+                  </nz-form-item> 
+                  <nz-form-item nzFlex>
+                      <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入效率！">
+                          <nz-input-number nz-input formControlName="heat_exchangerparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item> 
+              </div>
+              <div nz-row nzType="flex" nzAlign="middle">
+                  <nz-form-item class="widthStyle"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="pvisCheck" [(ngModel)]="pvisCheck"><span class="labelTitle">光伏</span></label> 
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex>
+                      <nz-form-label [nzNoColon]="true">效率</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入效率！">
+                          <nz-input-number [nzMin]=0 [nzMax]=1 nz-input formControlName="pvparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item> 
+              </div>
+          </div> 
+      </div>
+      <div style="border: 1px solid #ccc;width:49%">
+          <div style="margin-top: 45px; margin-left: 50px;"> 
+              <div nz-row nzType="flex" nzAlign="middle">
+                  <nz-form-item class="widthStyle"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="isCheckWaterPump" [(ngModel)]="isCheckWaterPump"><span class="labelTitle">水源热泵</span></label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item class="widthStyle4"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="hp_water_heatisCheck" [(ngModel)]="hp_water_heatisCheck">制热</label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex class="widthStyle5">
+                      <nz-form-label [nzNoColon]="true">COP</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入COP！">
+                          <nz-input-number nz-input formControlName="hp_water_heatparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item class="widthStyle4"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="hp_water_coldisCheck" [(ngModel)]="hp_water_coldisCheck">制冷</label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex class="widthStyle5">
+                      <nz-form-label [nzNoColon]="true">COP</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入COP！">
+                          <nz-input-number nz-input formControlName="hp_water_coldparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+              </div> 
+              <div nz-row nzType="flex" nzAlign="middle">
+                  <nz-form-item class="widthStyle"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="isCheckGroundPump" [(ngModel)]="isCheckGroundPump"><span class="labelTitle">地源热泵</span></label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item class="widthStyle4"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="hp_ground_heatisCheck" [(ngModel)]="hp_ground_heatisCheck">制热</label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex class="widthStyle5">
+                      <nz-form-label [nzNoColon]="true">COP</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入COP！">
+                          <nz-input-number [nzMin]=0 nz-input formControlName="hp_ground_heatparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item class="widthStyle4"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="hp_ground_coldisCheck" [(ngModel)]="hp_ground_coldisCheck">制冷</label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex class="widthStyle5">
+                      <nz-form-label [nzNoColon]="true">COP</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入COP！">
+                          <nz-input-number nz-input [nzMin]=0 formControlName="hp_ground_coldparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+              </div>
+              <div nz-row nzType="flex" nzAlign="middle">
+                  <nz-form-item class="widthStyle"> 
+                      <nz-form-control nzErrorTip="请输入COP！">
+                          <label nz-col nz-checkbox formControlName="isCheckAirPump" [(ngModel)]="isCheckAirPump"><span class="labelTitle">空气源热泵</span></label>
+                      </nz-form-control>
+                  </nz-form-item> 
+                  <nz-form-item class="widthStyle4"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="hp_air_heatisCheck" [(ngModel)]="hp_air_heatisCheck">制热</label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex class="widthStyle5">
+                      <nz-form-label [nzNoColon]="true">COP</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入COP！">
+                          <nz-input-number [nzMin]=0 nz-input formControlName="hp_air_heatparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item class="widthStyle4"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="hp_air_coldisCheck" [(ngModel)]="hp_air_coldisCheck">制冷</label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex class="widthStyle5">
+                      <nz-form-label [nzNoColon]="true">COP</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入COP！">
+                          <nz-input-number [nzMin]=0 nz-input formControlName="hp_air_coldparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+              </div> 
+              <div nz-row nzType="flex" nzAlign="middle">
+                  <nz-form-item class="widthStyle"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="elec_coldisCheck" [(ngModel)]="elec_coldisCheck"><span class="labelTitle">电制冷</span></label> 
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex>
+                      <nz-form-label [nzNoColon]="true">COP</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入COP！">
+                          <nz-input-number [nzMin]=0 nz-input formControlName="elec_coldparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item> 
+              </div>
+              <div nz-row nzType="flex" nzAlign="middle">
+                  <nz-form-item class="widthStyle"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="libr_coldisCheck" [(ngModel)]="libr_coldisCheck"><span class="labelTitle">溴化锂制冷</span></label> 
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex>
+                      <nz-form-label [nzNoColon]="true">COP</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入COP！">
+                          <nz-input-number [nzMin]=0 nz-input formControlName="libr_coldparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item> 
+              </div>
+              <div nz-row nzType="flex" nzAlign="middle">
+                  <nz-form-item class="widthStyle"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="wind_elecisCheck" [(ngModel)]="wind_elecisCheck"><span class="labelTitle">风机</span></label> 
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item nzFlex class="widthStyle3">
+                      <nz-form-label [nzNoColon]="true">额定风速(m/s)</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入额定风速！">
+                          <nz-input-number [nzMin]=0 nz-input formControlName="wind_elecparam1"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item> 
+                  <nz-form-item nzFlex class="widthStyle3">
+                      <nz-form-label [nzNoColon]="true">切入风速(m/s)</nz-form-label>   
+                      <nz-form-control nzErrorTip="请输入切入风速！">
+                          <nz-input-number [nzMin]=0 nz-input formControlName="wind_elecparam2"></nz-input-number>
+                      </nz-form-control>
+                  </nz-form-item>
+              </div>
+              <div nz-row nzType="flex" nzAlign="middle">
+                  <nz-form-item class="widthStyle"> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="elec_stoisCheck"><span class="labelTitle">储电</span></label>
+                      </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item> 
+                      <nz-form-control >
+                          <label nz-col nz-checkbox formControlName="hotwater_stoisCheck"><span class="labelTitle">储热(水)</span></label> 
+                      </nz-form-control>
+                  </nz-form-item>
+              </div> 
+          </div> 
+      </div> 
+    </div> 
+    </form>
+  </div>
+
+  <div>
+    <div class="title-two title5">优化结果展示</div>
+    <div style="display: flex;padding-left: 30px;padding-right: 30px;margin-bottom: 35px;align-items: center;" [ngStyle]="{'justify-content':'space-between'}">
+      <div style="width: 48%;border: 1px solid #ccc;">
+        <div class="chartBoxtitle">设备容量</div>
+        <!-- 图形 -->
+        <div style="padding: 15px;"> 
+          <div id="chartPDF" style="width: 100%;height:250px;"></div>
+        </div> 
+      </div>  
+      <div style="width: 48%;border: 1px solid #ccc;">
+        <div class="chartBoxtitle">燃料量占比</div>
+        <div style="padding:15px;display: flex;">  
+          <div id="chartPiePDF" style="width: 100%;height:250px;"></div>
+          <div> 
+          </div>
+        </div> 
+      </div>
+    </div>  
+    <div class="tableBox">
+      <nz-table
+        #ajaxTable3
+        nzBordered 
+        nzShowSizeChanger
+        [nzFrontPagination]="false"
+        [nzData]="listOfData"
+        [nzLoading]="loading" 
+      >
+        <thead>
+          <tr>
+            <th [nzAlign]='alignType'>序号</th>
+            <th [nzAlign]='alignType'>成本来源</th>
+            <th [nzAlign]='alignType'>成本(万元/年)</th>
+            <th [nzAlign]='alignType'>收入来源</th>
+            <th [nzAlign]='alignType'>收入(万元/年)</th>
+            <th [nzAlign]='alignType'>收益(万元/年)</th>
+            <th [nzAlign]='alignType'>碳排放(吨/年)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of ajaxTable3.data;let i = index">
+            <td [nzAlign]='alignType'><span *ngIf="i !== 5">{{i+1}}</span><span *ngIf="i === 5">合计</span></td>
+            <td [nzAlign]='alignType' [attr.colspan]="i === 5 ? 2 : 1">{{ data.costFrom }}</td>
+            <td [nzAlign]='alignType' *ngIf="i !== 5">{{ data.cost }}</td>
+            <td [nzAlign]='alignType' [attr.colspan]="i === 5 ? 2 : 1">{{ data.incomeFrom }}</td>
+            <td [nzAlign]='alignType' *ngIf="i !== 5">{{ data.income }}</td>
+            <td [nzAlign]='alignType' [attr.rowspan]="i === 0 ? 6 : 1" *ngIf="i === 0">{{ data.profit }}</td>
+            <td [nzAlign]='alignType' [attr.rowspan]="i === 0 ? 6 : 1" *ngIf="i === 0">{{ data.carbonOut }}</td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </div>
+  </div> 
+</div>
+

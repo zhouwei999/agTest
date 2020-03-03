@@ -1,0 +1,274 @@
+<div class="content">
+    <div>
+        <div>
+            <span class="site">地理位置</span>
+            <div class="search">
+                <nz-input-group nzSearch nzSize="large" [nzAddOnAfter]="suffixButton">
+                    <input [(ngModel)]="site" type="text" nz-input placeholder="请输入搜索地址" (blur)="hidePlace()" (click)="showPlace()" />
+                </nz-input-group>
+                <ng-template #suffixButton>
+                    <button nz-button nzType="primary" nzSize="large" nzSearch (click)=search()>搜索</button>
+                </ng-template>
+                <ul class="placeList" *ngIf="ifShowCityList">
+                    <li *ngFor = "let data of cityList " (click)="chooseCity(data.name)">{{data.name | screencity:site}}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="clean"></div>
+        <div class="gutter-example">
+            <div nz-row nzGutter="16">
+                <div nz-col class="gutter-row" nzSpan="13">
+                    <div id = "map"></div>
+                </div>
+                <div nz-col class="gutter-row" nzSpan="11">
+                    <div class="chart">
+                        <div class="header">
+                            
+                            <span class="left typical">典型日环境数据</span>
+                            <nz-upload [nzShowUploadList]='false' [nzCustomRequest]="customReq"> 
+                              <button style="background-color: #02B980;color: #ffff;border: 0px;" nz-button><i nz-icon nzType="upload"></i><span>上传数据</span></button>
+                            </nz-upload>
+                            <span class="right download">
+                              <a href="../../../assets/template/华光环境数据.xlsx" alt="">模板下载</a>
+                            </span>
+                        </div>
+                        <div class="seasonContent">
+                            <nz-button-group>
+                                <button (click)="queryPageData(1)" nz-button nzType="{{summer==true?'primary':''}}">夏季</button>
+                                <button (click)="queryPageData(2)" nz-button nzType="{{summer==true?'':'primary'}}">冬季</button>
+                            </nz-button-group>
+                            <div class="chartTable">
+                                <div class="chartHeat">
+                                    <div class="left">日时风速(m/s)</div>
+                                    <div class="right" style="margin-right:10px">日辐射强度(kw/㎡)</div>
+                                </div>
+                                
+                                <div id="lineChart"></div>
+                                <div class="windTable">
+                                    <div class="windTablehead">
+                                        <span class="left">日时风速&nbsp;(m/s)</span>
+                                        <span *ngIf="!ifshowWind" (click)="showWind(true)" class="right" style="cursor:pointer">展开&nbsp;&nbsp;<i nz-icon nzType="down" nzTheme="outline"></i></span>
+                                        <span *ngIf="ifshowWind" (click)="showWind(false)" class="right" style="cursor:pointer">收起&nbsp;&nbsp;<i nz-icon nzType="up" nzTheme="outline"></i></span>
+                                    </div>
+                                    <div class="windTablebody" *ngIf="ifshowWind">
+                                        <nz-table *ngIf="summer" #editRowTable [nzShowPagination]='false' nzBordered [nzData]="listOfDataWindSummer" style="width: 100%;">
+                                            <thead style="background-color: #02B980;">
+                                              <tr>
+                                                <th>时间</th>
+                                                <th>需求值(MW)</th>
+                                                <th>时间</th>
+                                                <th>需求值(MW)</th>
+                                                <th>时间</th>
+                                                <th>需求值(MW)</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              <tr *ngFor="let data of editRowTable.data" class="editable-row">
+                                                <td>{{ data.time1 }}</td>
+                                                <td>
+                                                  <div class="editable-cell" *ngIf="editId !== data.id; else editTpl">
+                                                    <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                                      {{ data.needValue1 }}
+                                                    </div>
+                                                  </div>
+                                                  <ng-template #editTpl>
+                                                    <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue1"></nz-input-number>
+                                                  </ng-template>
+                                                </td>
+                                                <td>{{ data.time2 }}</td>
+                                                <td>
+                                                    <div class="editable-cell" *ngIf="editId !== data.id; else editTp2">
+                                                      <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                                        {{ data.needValue2 }}
+                                                      </div>
+                                                    </div>
+                                                    <ng-template #editTp2>
+                                                      <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue2"></nz-input-number>
+                                                    </ng-template>
+                                                  </td> 
+                                                <td>{{ data.time3 }}</td>
+                                                <td>
+                                                    <div class="editable-cell" *ngIf="editId !== data.id; else editTp3">
+                                                      <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                                        {{ data.needValue3 }}
+                                                      </div>
+                                                    </div>
+                                                    <ng-template #editTp3>
+                                                      <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue3"></nz-input-number>
+                                                    </ng-template>
+                                                  </td>
+                                              </tr>
+                                            </tbody>
+                                        </nz-table> 
+                                        <nz-table *ngIf="!summer" #editRowTable [nzShowPagination]='false' nzBordered [nzData]="listOfDataWindWinter" style="width: 100%;">
+                                            <thead style="background-color: #02B980;">
+                                              <tr>
+                                                <th>时间</th>
+                                                <th>需求值(MW)</th>
+                                                <th>时间</th>
+                                                <th>需求值(MW)</th>
+                                                <th>时间</th>
+                                                <th>需求值(MW)</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              <tr *ngFor="let data of editRowTable.data" class="editable-row">
+                                                <td>{{ data.time1 }}</td>
+                                                <td>
+                                                  <div class="editable-cell" *ngIf="editId !== data.id; else editTpl">
+                                                    <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                                      {{ data.needValue1 }}
+                                                    </div>
+                                                  </div>
+                                                  <ng-template #editTpl>
+                                                    <nz-input-number type="text" class="tableInput" (change)="updateSeason('winter')" nz-input [(ngModel)]="data.needValue1"></nz-input-number>
+                                                  </ng-template>
+                                                </td>
+                                                <td>{{ data.time2 }}</td>
+                                                <td>
+                                                    <div class="editable-cell" *ngIf="editId !== data.id; else editTp2">
+                                                      <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                                        {{ data.needValue2 }}
+                                                      </div>
+                                                    </div>
+                                                    <ng-template #editTp2>
+                                                      <nz-input-number type="text" class="tableInput" (change)="updateSeason('winter')" nz-input [(ngModel)]="data.needValue2"></nz-input-number>
+                                                    </ng-template>
+                                                  </td> 
+                                                <td>{{ data.time3 }}</td>
+                                                <td>
+                                                    <div class="editable-cell" *ngIf="editId !== data.id; else editTp3">
+                                                      <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                                        {{ data.needValue3 }}
+                                                      </div>
+                                                    </div>
+                                                    <ng-template #editTp3>
+                                                      <nz-input-number type="text" class="tableInput" (change)="updateSeason('winter')" nz-input [(ngModel)]="data.needValue3"></nz-input-number>
+                                                    </ng-template>
+                                                  </td>
+                                              </tr>
+                                            </tbody>
+                                        </nz-table> 
+                                    </div>
+                                    <div class="windTablehead">
+                                        <span class="left">日辐射强度&nbsp;(kw/㎡)</span>
+                                        <span *ngIf="!ifshowSun" (click)="showSun(true)" class="right" style="cursor:pointer">展开&nbsp;&nbsp;<i nz-icon nzType="down" nzTheme="outline"></i></span>
+                                        <span *ngIf="ifshowSun" (click)="showSun(false)" class="right" style="cursor:pointer">收起&nbsp;&nbsp;<i nz-icon nzType="up" nzTheme="outline"></i></span>
+                                    </div>
+                                    <div *ngIf="ifshowSun" class="sunTablebody">
+                                        <nz-table *ngIf="summer" #editRowTable [nzShowPagination]='false' nzBordered [nzData]="listOfDataSunSummer" style="width: 100%;">
+                                            <thead style="background-color: #02B980;">
+                                              <tr>
+                                                <th>时间</th>
+                                                <th>需求值(MW)</th>
+                                                <th>时间</th>
+                                                <th>需求值(MW)</th>
+                                                <th>时间</th>
+                                                <th>需求值(MW)</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              <tr *ngFor="let data of editRowTable.data" class="editable-row">
+                                                <td>{{ data.time1 }}</td>
+                                                <td>
+                                                  <div class="editable-cell" *ngIf="editId !== data.id; else editTpl">
+                                                    <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                                      {{ data.needValue1 }}
+                                                    </div>
+                                                  </div>
+                                                  <ng-template #editTpl>
+                                                    <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue1"></nz-input-number>
+                                                  </ng-template>
+                                                </td>
+                                                <td>{{ data.time2 }}</td>
+                                                <td>
+                                                    <div class="editable-cell" *ngIf="editId !== data.id; else editTp2">
+                                                      <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                                        {{ data.needValue2 }}
+                                                      </div>
+                                                    </div>
+                                                    <ng-template #editTp2>
+                                                      <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue2"></nz-input-number>
+                                                    </ng-template>
+                                                  </td> 
+                                                <td>{{ data.time3 }}</td>
+                                                <td>
+                                                    <div class="editable-cell" *ngIf="editId !== data.id; else editTp3">
+                                                      <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                                        {{ data.needValue3 }}
+                                                      </div>
+                                                    </div>
+                                                    <ng-template #editTp3>
+                                                      <nz-input-number type="text" class="tableInput" (change)="updateSeason('summer')" nz-input [(ngModel)]="data.needValue3"></nz-input-number>
+                                                    </ng-template>
+                                                  </td>
+                                              </tr>
+                                            </tbody>
+                                        </nz-table> 
+                                        <nz-table *ngIf="!summer" #editRowTable [nzShowPagination]='false' nzBordered [nzData]="listOfDataSunWinter" style="width: 100%;">
+                                            <thead style="background-color: #02B980;">
+                                              <tr>
+                                                <th>时间</th>
+                                                <th>需求值(MW)</th>
+                                                <th>时间</th>
+                                                <th>需求值(MW)</th>
+                                                <th>时间</th>
+                                                <th>需求值(MW)</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              <tr *ngFor="let data of editRowTable.data" class="editable-row">
+                                                <td>{{ data.time1 }}</td>
+                                                <td>
+                                                  <div class="editable-cell" *ngIf="editId !== data.id; else editTpl">
+                                                    <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                                      {{ data.needValue1 }}
+                                                    </div>
+                                                  </div>
+                                                  <ng-template #editTpl>
+                                                    <nz-input-number type="text" class="tableInput" (change)="updateSeason('winter')" nz-input [(ngModel)]="data.needValue1"></nz-input-number>
+                                                  </ng-template>
+                                                </td>
+                                                <td>{{ data.time2 }}</td>
+                                                <td>
+                                                    <div class="editable-cell" *ngIf="editId !== data.id; else editTp2">
+                                                      <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                                        {{ data.needValue2 }}
+                                                      </div>
+                                                    </div>
+                                                    <ng-template #editTp2>
+                                                      <nz-input-number type="text" class="tableInput" (change)="updateSeason('winter')" nz-input [(ngModel)]="data.needValue2"></nz-input-number>
+                                                    </ng-template>
+                                                  </td> 
+                                                <td>{{ data.time3 }}</td>
+                                                <td>
+                                                    <div class="editable-cell" *ngIf="editId !== data.id; else editTp3">
+                                                      <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                                        {{ data.needValue3 }}
+                                                      </div>
+                                                    </div>
+                                                    <ng-template #editTp3>
+                                                      <nz-input-number type="text" class="tableInput" (change)="updateSeason('winter')" nz-input [(ngModel)]="data.needValue3"></nz-input-number>
+                                                    </ng-template>
+                                                  </td>
+                                              </tr>
+                                            </tbody>
+                                        </nz-table> 
+                                    </div>
+
+                                </div>
+                            </div>
+                           
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="clear"></div>
+            <div class="stepBtns">
+                <button nz-button nzType="primary" (click)="saveAnextStep()">下一步<i nz-icon nzType="arrow-right" nzTheme="outline"></i></button>
+            </div>
+        </div>
+        
+    </div>
+</div>

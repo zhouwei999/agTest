@@ -1,0 +1,311 @@
+<div class="panel">
+    <div style="display: flex;">
+        <div class="title-three" style="align-items: center;display: grid;margin-right: 40px;">负荷现状</div>
+        <form nz-form [nzLayout]="'inline'" [formGroup]="nowParamForm" (ngSubmit)="submitForm()">
+            <nz-form-item class="inputMargin">
+                <nz-form-label [nzNoColon]="true">电供给 (MW)</nz-form-label>   
+                <nz-form-control>
+                    <nz-input-number nz-input formControlName="electricity"></nz-input-number>
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item class="inputMargin">
+                <nz-form-label [nzNoColon]="true">蒸汽供给(MW)</nz-form-label>         
+                <nz-form-control>
+                    <nz-input-number [nzMin]=0 [nzPrecision]="2" nz-input formControlName="steam"></nz-input-number>
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item class="inputMargin"> 
+                <nz-form-label [nzNoColon]="true">供暖供给(MW)</nz-form-label>         
+                <nz-form-control>
+                    <nz-input-number [nzMin]=0 nz-input formControlName="heat"></nz-input-number>
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item class="inputMargin"> 
+                <nz-form-label [nzNoColon]="true">热水供给(MW)</nz-form-label>         
+                <nz-form-control>
+                    <nz-input-number [nzMin]=0 nz-input formControlName="hotwater"></nz-input-number>
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item class="inputMargin"> 
+                <nz-form-label [nzNoColon]="true">冷供给(MW)</nz-form-label>         
+                <nz-form-control>
+                    <nz-input-number [nzMin]=0 nz-input formControlName="cold"></nz-input-number>
+                </nz-form-control>
+            </nz-form-item>
+        </form> 
+    </div>
+    <nz-divider></nz-divider> 
+    <div>
+        <div style="display: flex;margin-bottom: 20px;">
+            <div class="title-three" style="align-items: center;display: grid;margin-right: 40px;">负荷需求</div>
+            <nz-upload [nzShowUploadList]='false' [nzCustomRequest]="customReq"> 
+              <button style="background-color: #02B980;color: #ffff;border: 0px;" nz-button><i nz-icon nzType="upload"></i><span>上传数据</span></button>
+            </nz-upload>
+            <a style="margin-left: 20px;display: grid;align-items: center;" (click)="downLoad()">模板下载</a>
+        </div>
+        <div class="card-container">
+          <nz-tabset [nzTabPosition]="'top'" [nzType]="'card'" (nzSelectedIndexChange)="chooseTab([$event])">
+            <nz-tab *ngFor="let tab of tabs" [nzTitle]="tab.title"> 
+                <div style="padding: 15px;display: flex;justify-content: space-between;">
+                    <nz-table #editRowTable *ngIf="tab.value == 'electricity'" [nzShowPagination]='false' nzBordered [nzData]="listOfData" style="width: 48%;">
+                        <thead style="background-color: #02B980;">
+                          <tr>
+                            <th>时间</th>
+                            <th>需求值(MW)</th>
+                            <th>时间</th>
+                            <th>需求值(MW)</th>
+                            <th>时间</th>
+                            <th>需求值(MW)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let data of editRowTable.data" class="editable-row">
+                            <td>{{ data.time1 }}</td>
+                            <td>
+                              <div class="editable-cell" *ngIf="editId !== data.id; else editTpl">
+                                <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                  {{ data.needValue1 }}
+                                </div>
+                              </div>
+                              <ng-template #editTpl>
+                                <nz-input-number [nzMin]=0 type="text" class="tableInput" (nzBlur)="refreshChart(tab.value)" nz-input [(ngModel)]="data.needValue1"></nz-input-number>
+                              </ng-template>
+                            </td>
+                            <td>{{ data.time2 }}</td>
+                            <td>
+                                <div class="editable-cell" *ngIf="editId !== data.id; else editTp2">
+                                  <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                    {{ data.needValue2 }}
+                                  </div>
+                                </div>
+                                <ng-template #editTp2>
+                                  <nz-input-number [nzMin]=0 type="text" class="tableInput" (nzBlur)="refreshChart(tab.value)" nz-input [(ngModel)]="data.needValue2"></nz-input-number>
+                                </ng-template>
+                              </td> 
+                            <td>{{ data.time3 }}</td>
+                            <td>
+                                <div class="editable-cell" *ngIf="editId !== data.id; else editTp3">
+                                  <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                    {{ data.needValue3 }}
+                                  </div>
+                                </div>
+                                <ng-template #editTp3>
+                                  <nz-input-number [nzMin]=0 type="text" class="tableInput" (nzBlur)="refreshChart(tab.value)" nz-input [(ngModel)]="data.needValue3"></nz-input-number>
+                                </ng-template>
+                              </td>
+                          </tr>
+                        </tbody>
+                    </nz-table> 
+                    <nz-table #editRowTable *ngIf="tab.value == 'steam'" [nzShowPagination]='false' nzBordered [nzData]="listOfData2" style="width: 48%;">
+                      <thead style="background-color: #02B980;">
+                        <tr>
+                          <th>时间</th>
+                          <th>需求值(MW)</th>
+                          <th>时间</th>
+                          <th>需求值(MW)</th>
+                          <th>时间</th>
+                          <th>需求值(MW)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let data of editRowTable.data" class="editable-row">
+                          <td>{{ data.time1 }}</td>
+                          <td>
+                            <div class="editable-cell" *ngIf="editId !== data.id; else editTpl">
+                              <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                {{ data.needValue1 }}
+                              </div>
+                            </div>
+                            <ng-template #editTpl>
+                              <nz-input-number [nzMin]=0 type="text" class="tableInput" (nzBlur)="refreshChart(tab.value)" nz-input [(ngModel)]="data.needValue1"></nz-input-number>
+                            </ng-template>
+                          </td>
+                          <td>{{ data.time2 }}</td>
+                          <td>
+                              <div class="editable-cell" *ngIf="editId !== data.id; else editTp2">
+                                <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                  {{ data.needValue2 }}
+                                </div>
+                              </div>
+                              <ng-template #editTp2>
+                                <nz-input-number [nzMin]=0 type="text" class="tableInput" (nzBlur)="refreshChart(tab.value)" nz-input [(ngModel)]="data.needValue2"></nz-input-number>
+                              </ng-template>
+                            </td> 
+                          <td>{{ data.time3 }}</td>
+                          <td>
+                              <div class="editable-cell" *ngIf="editId !== data.id; else editTp3">
+                                <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                  {{ data.needValue3 }}
+                                </div>
+                              </div>
+                              <ng-template #editTp3>
+                                <nz-input-number [nzMin]=0 type="text" class="tableInput" (nzBlur)="refreshChart(tab.value)" nz-input [(ngModel)]="data.needValue3"></nz-input-number>
+                              </ng-template>
+                            </td>
+                        </tr>
+                      </tbody>
+                    </nz-table> 
+                    <nz-table #editRowTable *ngIf="tab.value == 'heat'" [nzShowPagination]='false' nzBordered [nzData]="listOfData3" style="width: 48%;">
+                      <thead style="background-color: #02B980;">
+                        <tr>
+                          <th>时间</th>
+                          <th>需求值(MW)</th>
+                          <th>时间</th>
+                          <th>需求值(MW)</th>
+                          <th>时间</th>
+                          <th>需求值(MW)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let data of editRowTable.data" class="editable-row">
+                          <td>{{ data.time1 }}</td>
+                          <td>
+                            <div class="editable-cell" *ngIf="editId !== data.id; else editTpl">
+                              <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                {{ data.needValue1 }}
+                              </div>
+                            </div>
+                            <ng-template #editTpl>
+                              <nz-input-number [nzMin]=0 type="text" class="tableInput" (nzBlur)="refreshChart(tab.value)" nz-input [(ngModel)]="data.needValue1"></nz-input-number>
+                            </ng-template>
+                          </td>
+                          <td>{{ data.time2 }}</td>
+                          <td>
+                              <div class="editable-cell" *ngIf="editId !== data.id; else editTp2">
+                                <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                  {{ data.needValue2 }}
+                                </div>
+                              </div>
+                              <ng-template #editTp2>
+                                <nz-input-number [nzMin]=0 type="text" class="tableInput" (nzBlur)="refreshChart(tab.value)" nz-input [(ngModel)]="data.needValue2"></nz-input-number>
+                              </ng-template>
+                            </td> 
+                          <td>{{ data.time3 }}</td>
+                          <td>
+                              <div class="editable-cell" *ngIf="editId !== data.id; else editTp3">
+                                <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                  {{ data.needValue3 }}
+                                </div>
+                              </div>
+                              <ng-template #editTp3>
+                                <nz-input-number [nzMin]=0 type="text" class="tableInput" (nzBlur)="refreshChart(tab.value)" nz-input [(ngModel)]="data.needValue3"></nz-input-number>
+                              </ng-template>
+                            </td>
+                        </tr>
+                      </tbody>
+                    </nz-table> 
+                    <nz-table #editRowTable *ngIf="tab.value == 'hotwater'" [nzShowPagination]='false' nzBordered [nzData]="listOfData4" style="width: 48%;">
+                      <thead style="background-color: #02B980;">
+                        <tr>
+                          <th>时间</th>
+                          <th>需求值(MW)</th>
+                          <th>时间</th>
+                          <th>需求值(MW)</th>
+                          <th>时间</th>
+                          <th>需求值(MW)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let data of editRowTable.data" class="editable-row">
+                          <td>{{ data.time1 }}</td>
+                          <td>
+                            <div class="editable-cell" *ngIf="editId !== data.id; else editTpl">
+                              <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                {{ data.needValue1 }}
+                              </div>
+                            </div>
+                            <ng-template #editTpl>
+                              <nz-input-number [nzMin]=0 type="text" class="tableInput" (nzBlur)="refreshChart(tab.value)" nz-input [(ngModel)]="data.needValue1"></nz-input-number>
+                            </ng-template>
+                          </td>
+                          <td>{{ data.time2 }}</td>
+                          <td>
+                              <div class="editable-cell" *ngIf="editId !== data.id; else editTp2">
+                                <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                  {{ data.needValue2 }}
+                                </div>
+                              </div>
+                              <ng-template #editTp2>
+                                <nz-input-number [nzMin]=0 type="text" class="tableInput" (nzBlur)="refreshChart(tab.value)" nz-input [(ngModel)]="data.needValue2"></nz-input-number>
+                              </ng-template>
+                            </td> 
+                          <td>{{ data.time3 }}</td>
+                          <td>
+                              <div class="editable-cell" *ngIf="editId !== data.id; else editTp3">
+                                <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                  {{ data.needValue3 }}
+                                </div>
+                              </div>
+                              <ng-template #editTp3>
+                                <nz-input-number [nzMin]=0 type="text" class="tableInput" (nzBlur)="refreshChart(tab.value)" nz-input [(ngModel)]="data.needValue3"></nz-input-number>
+                              </ng-template>
+                            </td>
+                        </tr>
+                      </tbody>
+                    </nz-table>
+                    <nz-table #editRowTable *ngIf="tab.value == 'cold'" [nzShowPagination]='false' nzBordered [nzData]="listOfData5" style="width: 48%;">
+                      <thead style="background-color: #02B980;">
+                        <tr>
+                          <th>时间</th>
+                          <th>需求值(MW)</th>
+                          <th>时间</th>
+                          <th>需求值(MW)</th>
+                          <th>时间</th>
+                          <th>需求值(MW)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let data of editRowTable.data" class="editable-row">
+                          <td>{{ data.time1 }}</td>
+                          <td>
+                            <div class="editable-cell" *ngIf="editId !== data.id; else editTpl">
+                              <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                {{ data.needValue1 }}
+                              </div>
+                            </div>
+                            <ng-template #editTpl>
+                              <nz-input-number [nzMin]=0 type="text" class="tableInput" (nzBlur)="refreshChart(tab.value)" nz-input [(ngModel)]="data.needValue1"></nz-input-number>
+                            </ng-template>
+                          </td>
+                          <td>{{ data.time2 }}</td>
+                          <td>
+                              <div class="editable-cell" *ngIf="editId !== data.id; else editTp2">
+                                <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                  {{ data.needValue2 }}
+                                </div>
+                              </div>
+                              <ng-template #editTp2>
+                                <nz-input-number [nzMin]=0 type="text" class="tableInput" (nzBlur)="refreshChart(tab.value)" nz-input [(ngModel)]="data.needValue2"></nz-input-number>
+                              </ng-template>
+                            </td> 
+                          <td>{{ data.time3 }}</td>
+                          <td>
+                              <div class="editable-cell" *ngIf="editId !== data.id; else editTp3">
+                                <div class="editable-cell-value-wrap" (click)="startEdit(data.id, $event)">
+                                  {{ data.needValue3 }}
+                                </div>
+                              </div>
+                              <ng-template #editTp3>
+                                <nz-input-number [nzMin]=0 type="text" class="tableInput" (nzBlur)="refreshChart(tab.value)" nz-input [(ngModel)]="data.needValue3"></nz-input-number>
+                              </ng-template>
+                            </td>
+                        </tr>
+                      </tbody>
+                    </nz-table>
+
+                    <!-- 图形 -->
+                    <div style="width: 48%;padding:15px">
+                      <span style="margin-right: 10px;">单位：MW</span>
+                      <i nz-icon nzType="sync" style="cursor: pointer;" nzTheme="outline" (click)="refreshChart(tab.value)"></i>
+                      <div id="chart" style="width: 100%;height:90%;"></div>
+                    </div>
+                </div>  
+            </nz-tab> 
+          </nz-tabset>  
+        </div>
+    </div>
+    <div class="stepBtns">
+        <button nz-button style="margin-right: 15px;" (click)="previousStep()"><i nz-icon nzType="arrow-left" nzTheme="outline"></i>上一步</button>
+        <button nz-button nzType="primary" (click)="saveAnextStep()" [nzLoading]="loadNext">下一步<i nz-icon nzType="arrow-right" nzTheme="outline"></i></button>
+    </div>
+</div>

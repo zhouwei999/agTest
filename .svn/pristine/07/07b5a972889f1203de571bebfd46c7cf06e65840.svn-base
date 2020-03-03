@@ -1,0 +1,32 @@
+.chartBox{
+    width: 48%;
+    box-shadow: #ccc 0px 0px 10px;
+}
+
+.panelResult{
+    background-color: #ffffff;
+    padding: 30px 70px;
+}
+
+.marginStyle{
+    margin-right: 50px;
+}
+
+.panelChild{
+    display: flex;
+    justify-content: space-between;
+}
+
+.panelChildnone{
+    display: none;
+}
+
+.chartBoxtitle{
+    padding: 15px 0px 5px 15px; 
+    border-bottom: 1px solid #ccc;
+}
+
+.tableBox{
+    padding-left: 30px;
+    padding-right: 30px;
+}
