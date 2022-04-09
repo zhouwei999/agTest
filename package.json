@@ -23,7 +23,7 @@
     "echarts": "^4.5.0",
     "html2canvas": "^1.0.0-rc.5",
     "jspdf": "^1.5.3",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "ng-zorro-antd": "^8.5.2",
     "rxjs": "~6.4.0",
     "tslib": "^1.10.0",
